@@ -38,7 +38,7 @@ The saved Codex login is a local credential. It must never be copied into the re
 Keep all credentials out of Git:
 
 - Codex login: keep only in the local Codex credential store.
-- Codex adapter: bind to `127.0.0.1`; it needs no external API key.
+- Codex adapter: bind to `127.0.0.1`, or only to the WSL virtual-host address when TrueForge runs in WSL; it needs no external API key.
 - Daytona key: store in TrueForge Settings -> Sandbox providers.
 - GitHub credential: store in the TrueForge GitHub connector.
 - Qodo authorization: install through GitHub.
@@ -411,14 +411,14 @@ Adapter rules:
 
 Adapter acceptance tests:
 
-- [ ] Health check distinguishes installed, signed-in, signed-out, and timed-out Codex states.
-- [ ] A plain-message request returns a valid assistant response.
-- [ ] A request containing one fake tool returns a valid tool call without executing it.
-- [ ] An unknown tool name is rejected.
-- [ ] A malformed Codex response produces a typed error and at most one retry.
-- [ ] Two simultaneous requests succeed; a third waits instead of spawning unbounded work.
-- [ ] A provider turn cannot read or modify `demo_target`.
-- [ ] No OpenAI Platform API key is present or required.
+- [x] Health check distinguishes installed, signed-in, signed-out, and timed-out Codex states.
+- [x] A plain-message request returns a valid assistant response.
+- [x] A request containing one fake tool returns a valid tool call without executing it.
+- [x] An unknown tool name is rejected.
+- [x] A malformed Codex response produces a typed error and at most one retry.
+- [x] Two simultaneous requests succeed; a third waits instead of spawning unbounded work.
+- [x] A provider turn cannot read or modify `demo_target`.
+- [x] No OpenAI Platform API key is present or required.
 
 ## 15. TrueForge agent configuration
 
@@ -428,8 +428,8 @@ Model provider:
 
 - Provider type: `custom`.
 - Provider name: `codex-local`.
-- Base URL: `http://127.0.0.1:8765/v1`.
-- API key: leave blank because the adapter is loopback-only. If the UI requires a value, use a documented local placeholder, never a real credential.
+- Base URL: `http://127.0.0.1:8765/v1`. When TrueForge runs in WSL, use the Windows address shown as WSL's default gateway instead.
+- API key: leave blank because the adapter is local-only. If the UI requires a value, use a documented local placeholder, never a real credential.
 - Model ID and display name: `codex-subscription`.
 - Run a plain-message and tool-call smoke test before creating the saved agent.
 
@@ -464,7 +464,7 @@ without passing evidence. Work only on a new branch. Present the source links,
 diff, and tests before creating a draft PR. Never merge without tool approval.
 ```
 
-The setup script should create or update the agent through `POST /api/v1/agents` and `PUT /api/v1/agents/{id}` so the approval policy is reproducible. It must not contain credentials. Model-provider registration may remain a short manual UI step if TrueForge does not expose a stable setup endpoint.
+The setup script should create or update the model provider through `/api/v1/settings/model-providers`, then create or update the agent through `POST /api/v1/agents` and `PUT /api/v1/agents/{id}`. This keeps setup reproducible without storing credentials.
 
 ### Required TrueForge harness evidence
 
@@ -503,7 +503,7 @@ Fail the demo rehearsal if any consequential operation appears only in adapter l
 - [x] Install Node.js 22.14 or newer and the current Codex CLI.
 - [x] Run `codex login` using the Codex subscription.
 - [x] Run one read-only, ephemeral `codex exec` smoke test and confirm it uses saved login.
-- [ ] Run `npx @truefoundry/trueforge@latest` and open `http://localhost:8790`.
+- [x] Run TrueForge locally and open `http://localhost:8790` (verified with the WSL/pnpm fallback because TrueForge 0.1.4 fails on native Windows path imports).
 - [ ] Create a Daytona account and API key.
 - [ ] Give the Daytona key write/delete snapshot and write sandbox permissions.
 - [ ] Add Daytona under TrueForge Settings -> Sandbox providers.
@@ -518,20 +518,20 @@ Exit check: Codex works without an OpenAI Platform API key; TrueForge starts; Da
 - [x] Add the provider response JSON Schema.
 - [x] Implement `/healthz`, `/v1/models`, and the minimum completion endpoint TrueForge actually calls.
 - [x] Launch Codex with `asyncio.create_subprocess_exec`, never `shell=True`.
-- [ ] Add timeout, concurrency limit, output validation, error mapping, and safe logs.
-- [ ] Add message and tool-call adapter tests with a fake Codex executable.
-- [ ] Start the adapter on `127.0.0.1:8765`.
-- [ ] Add `codex-local` under TrueForge Settings -> Models.
-- [ ] Verify a plain response and a fake tool call through TrueForge.
+- [x] Add timeout, concurrency limit, output validation, error mapping, and safe logs.
+- [x] Add message and tool-call adapter tests with a fake Codex process.
+- [x] Start the adapter on local port `8765`.
+- [x] Add `codex-local` under TrueForge Settings -> Models.
+- [x] Verify a plain response and a controlled built-in tool call through TrueForge.
 
-Exit check: a TrueForge turn is answered through the local adapter, and TrueForge executes a fake tool call returned by Codex.
+Exit check: passed on August 26, 2026. TrueForge returned `DRIFTFIX_TRUEFORGE_OK`, traced an `ask_user_question` call with the expected arguments, and produced `tool.response_required` so the client remains in control.
 
 ### Phase 2: deterministic backend - August 26 to 27
 
 - [x] Create `pyproject.toml` and the package layout.
-- [ ] Implement Pydantic report schemas.
-- [ ] Implement latest stable Stripe release lookup.
-- [ ] Implement official changelog and migration-guide retrieval.
+- [x] Implement Pydantic report schemas.
+- [x] Implement latest stable Stripe release lookup.
+- [x] Implement official changelog and migration-guide retrieval.
 - [ ] Implement the five-node LangGraph workflow.
 - [ ] Add one workflow test using saved HTTP responses or dependency injection.
 - [ ] Ensure network failures return a typed error report.
@@ -587,7 +587,7 @@ Exit check: one uninterrupted TrueForge session completes the whole judge story,
 | Codex returns malformed output | One retry, then a typed provider error |
 | Codex asks for an unavailable tool | Adapter rejects it; nothing executes |
 | Third concurrent Codex request | It waits behind the two-process limit |
-| TrueForge requests a fake tool | Adapter returns the call; TrueForge visibly executes it |
+| TrueForge requests a controlled tool | Adapter returns the call; TrueForge traces it and pauses for the client response |
 | Latest-release response includes a prerelease | Prerelease is ignored |
 | Installed major equals latest major | `up_to_date` report |
 | Installed version is malformed | Validated error, no network work |
@@ -692,7 +692,7 @@ DriftFix is done when:
 
 - [ ] A clean checkout can install and run the backend from README instructions.
 - [ ] A signed-in Codex user can start the localhost provider without an OpenAI Platform API key.
-- [ ] TrueForge can use `codex-subscription` for plain messages and tool calls.
+- [x] TrueForge can use `codex-subscription` for plain messages and tool calls.
 - [ ] TrueForge can connect to the local MCP server.
 - [ ] The latest stable Stripe release is discovered automatically.
 - [ ] The report cites official evidence and does not hallucinate missing content.

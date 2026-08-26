@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 import os
 import tempfile
 import time
@@ -12,15 +13,36 @@ from shutil import which
 from typing import Any, Literal
 
 from fastapi import FastAPI, Request, Response
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
 MODEL_ID = "codex-subscription"
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "codex_turn.schema.json"
 DEFAULT_TIMEOUT_SECONDS = 180.0
+AUTH_CHECK_TIMEOUT_SECONDS = 5.0
+DEFAULT_MAX_CONCURRENCY = 2
 MAX_PROMPT_CHARACTERS = 100_000
+RETRYABLE_OUTPUT_ERRORS = {
+    "codex_invalid_jsonl",
+    "codex_invalid_output",
+    "codex_missing_output",
+}
 
 app = FastAPI(title="DriftFix Codex Provider", version="0.1.0")
+logger = logging.getLogger("driftfix.provider")
+
+
+def _max_concurrency() -> int:
+    try:
+        return max(
+            1,
+            int(os.getenv("CODEX_PROVIDER_MAX_CONCURRENCY", DEFAULT_MAX_CONCURRENCY)),
+        )
+    except ValueError:
+        return DEFAULT_MAX_CONCURRENCY
+
+
+_CODEX_SLOTS = asyncio.Semaphore(_max_concurrency())
 
 
 class RequestedFunction(BaseModel):
@@ -103,14 +125,49 @@ async def provider_error_handler(
 
 
 @app.get("/healthz")
-def healthz(response: Response) -> dict[str, object]:
-    installed = which("codex") is not None
-    response.status_code = 200 if installed else 503
+async def healthz(response: Response) -> dict[str, object]:
+    executable = which("codex")
+    if executable is None:
+        response.status_code = 503
+        return {
+            "status": "unavailable",
+            "codex_installed": False,
+            "authentication": "unavailable",
+        }
+
+    authentication = await _authentication_status(executable)
+    ready = authentication == "signed_in"
+    response.status_code = 200 if ready else 503
     return {
-        "status": "ok" if installed else "unavailable",
-        "codex_installed": installed,
-        "authentication": "unchecked",
+        "status": "ok" if ready else "unavailable",
+        "codex_installed": True,
+        "authentication": authentication,
     }
+
+
+async def _authentication_status(executable: str) -> str:
+    try:
+        process = await asyncio.create_subprocess_exec(
+            executable,
+            "login",
+            "status",
+            env=_child_environment(),
+            stdin=asyncio.subprocess.DEVNULL,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+    except OSError:
+        return "check_failed"
+
+    try:
+        await asyncio.wait_for(
+            process.communicate(), timeout=AUTH_CHECK_TIMEOUT_SECONDS
+        )
+    except TimeoutError:
+        process.kill()
+        await process.communicate()
+        return "timed_out"
+    return "signed_in" if process.returncode == 0 else "signed_out"
 
 
 @app.get("/v1/models")
@@ -128,19 +185,40 @@ def models() -> dict[str, object]:
     }
 
 
-@app.post("/v1/chat/completions")
-async def chat_completions(body: ChatCompletionRequest) -> dict[str, Any]:
+@app.post("/v1/chat/completions", response_model=None)
+async def chat_completions(
+    body: ChatCompletionRequest,
+) -> dict[str, Any] | StreamingResponse:
     if body.model != MODEL_ID:
         raise ProviderError(404, "model_not_found", f"Unknown model: {body.model}")
-    if body.stream:
-        raise ProviderError(
-            400,
-            "streaming_not_supported",
-            "Streaming is not supported by this provider yet.",
-        )
 
-    result = await run_codex(build_prompt(body))
-    return to_chat_completion(result, body)
+    request_id = uuid.uuid4().hex
+    started_at = time.perf_counter()
+    try:
+        result = await run_codex(build_prompt(body))
+        completion = to_chat_completion(result, body)
+    except ProviderError as error:
+        logger.warning(
+            "provider_turn request_id=%s duration_ms=%d exit_category=%s",
+            request_id,
+            int((time.perf_counter() - started_at) * 1000),
+            error.code,
+        )
+        raise
+
+    logger.info(
+        "provider_turn request_id=%s duration_ms=%d response_kind=%s",
+        request_id,
+        int((time.perf_counter() - started_at) * 1000),
+        result.turn.kind,
+    )
+    if body.stream:
+        return StreamingResponse(
+            _sse_events(completion),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache"},
+        )
+    return completion
 
 
 def build_prompt(body: ChatCompletionRequest) -> str:
@@ -200,6 +278,18 @@ def _timeout_seconds() -> float:
 
 
 async def run_codex(prompt: str) -> CodexResult:
+    async with _CODEX_SLOTS:
+        for attempt in range(2):
+            try:
+                return await _run_codex_once(prompt)
+            except ProviderError as error:
+                if attempt == 0 and error.code in RETRYABLE_OUTPUT_ERRORS:
+                    continue
+                raise
+    raise AssertionError("unreachable")
+
+
+async def _run_codex_once(prompt: str) -> CodexResult:
     executable = which("codex")
     if executable is None:
         raise ProviderError(503, "codex_not_installed", "Codex CLI is not installed.")
@@ -367,3 +457,32 @@ def to_chat_completion(
             "total_tokens": prompt_tokens + completion_tokens,
         },
     }
+
+
+async def _sse_events(completion: dict[str, Any]):
+    choice = completion["choices"][0]
+    message = choice["message"]
+    common = {
+        "id": completion["id"],
+        "object": "chat.completion.chunk",
+        "created": completion["created"],
+        "model": completion["model"],
+    }
+
+    def event(delta: dict[str, Any], finish_reason: str | None = None) -> str:
+        chunk = {
+            **common,
+            "choices": [
+                {"index": 0, "delta": delta, "finish_reason": finish_reason}
+            ],
+        }
+        return f"data: {json.dumps(chunk, separators=(',', ':'))}\n\n"
+
+    yield event({"role": "assistant"})
+    if "tool_calls" in message:
+        for index, tool_call in enumerate(message["tool_calls"]):
+            yield event({"tool_calls": [{"index": index, **tool_call}]})
+    elif message["content"]:
+        yield event({"content": message["content"]})
+    yield event({}, choice["finish_reason"])
+    yield "data: [DONE]\n\n"
