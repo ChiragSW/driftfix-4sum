@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "driftfix"
+version = "0.1.0"
+description = "Turn API breaking changes into tested migration pull requests."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+  "fastapi",
+  "httpx",
+  "langgraph",
+  "mcp[cli]",
+  "pydantic",
+  "uvicorn",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
