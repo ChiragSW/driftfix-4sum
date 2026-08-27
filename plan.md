@@ -552,7 +552,7 @@ Exit check: passed on August 27, 2026. Inspector received structured MCP output;
 ### Phase 4: TrueForge end-to-end workflow - August 27 to 28
 
 - [ ] Add the DriftFix MCP and GitHub connectors.
-- [ ] Add the compact DriftFix skill.
+- [x] Add the compact DriftFix skill.
 - [ ] Enable Daytona and dynamic subagents.
 - [ ] Create the saved `driftfix` agent.
 - [ ] Configure tool filters and merge approval.

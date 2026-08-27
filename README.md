@@ -41,6 +41,10 @@ python -m venv .venv
 
 Upgrade only the demo environment to `stripe==15.5.1`; the same test fails at `customer.get("email")`. Replacing that expression with `customer.to_dict().get("email")` makes it pass. The repository keeps the outdated v14 version so DriftFix has a real migration to perform.
 
+## TrueForge skill
+
+Attach [`agent/SKILL.md`](agent/SKILL.md) to the saved TrueForge agent. During rehearsal, confirm the trace loads `driftfix` and shows both named subagents, Daytona commands, GitHub actions, and the merge approval pause.
+
 ## Run the verified model integration
 
 Start the provider:
