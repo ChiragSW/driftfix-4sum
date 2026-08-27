@@ -2,11 +2,13 @@ import httpx
 import pytest
 from pydantic import ValidationError
 
-from driftfix.schemas import StripeRelease
 import driftfix.workflow as workflow
+from driftfix.schemas import OfficialGuidance, StripeRelease
 from driftfix.workflow import (
     GuidanceLookupError,
     ReleaseLookupError,
+    analyze_stripe_python_upgrade,
+    build_workflow,
     fetch_official_guidance,
     latest_stripe_python_release,
 )
@@ -141,3 +143,99 @@ def test_official_guidance_blocks_untrusted_and_oversized_sources(
                 "https://raw.githubusercontent.com/stripe/stripe-python/"
                 "v15.2.0/CHANGELOG.md",
             )
+
+
+def _guidance() -> OfficialGuidance:
+    return OfficialGuidance(
+        changelog_url="https://github.com/stripe/stripe-python/blob/v15.2.0/CHANGELOG.md",
+        migration_guide_url="https://github.com/stripe/stripe-python/wiki/Migration-guide-for-v15",
+        changelog_text=(
+            "## 15.2.0\nrelease notes\n"
+            "* Remove support for `legacy_field` on `Example`\n"
+            "## 14.0.0\n* old warning"
+        ),
+        migration_guide_text="""# Migration guide
+
+## `StripeObject` no longer inherits from `dict`
+
+Stripe objects now use attribute access, bracket notation, or `to_dict()`.
+
+### Migrating
+
+Replace `.get()` with `to_dict().get()` or `getattr()`.
+
+## Decimal fields use `Decimal` instead of `str`
+
+Decimal-formatted fields now use Python's `Decimal` type.
+""",
+    )
+
+
+def _graph(*, guidance_lookup=lambda _version: _guidance()):
+    release = StripeRelease(
+        version="15.2.0",
+        major=15,
+        published_at="2026-08-20T10:00:00Z",
+        release_url="https://github.com/stripe/stripe-python/releases/tag/v15.2.0",
+    )
+    return build_workflow(
+        release_lookup=lambda: release, guidance_lookup=guidance_lookup
+    )
+
+
+def test_workflow_builds_a_sourced_upgrade_report() -> None:
+    report = analyze_stripe_python_upgrade("14.3.0", graph=_graph())
+
+    assert report.status == "upgrade_available"
+    assert report.target_version == "15.2.0"
+    assert [change.title for change in report.breaking_changes] == [
+        "StripeObject no longer inherits from dict",
+        "Decimal fields use Decimal instead of str",
+        "Remove support for `legacy_field` on `Example`",
+    ]
+    assert ".get(" in report.breaking_changes[0].search_hints
+    assert str(report.breaking_changes[0].source_url).endswith(
+        "#stripeobject-no-longer-inherits-from-dict"
+    )
+
+
+def test_workflow_skips_guidance_when_current_major_is_latest() -> None:
+    def should_not_run(_version: str) -> OfficialGuidance:
+        raise AssertionError("guidance lookup should be skipped")
+
+    report = analyze_stripe_python_upgrade(
+        "15.0.0", graph=_graph(guidance_lookup=should_not_run)
+    )
+
+    assert report.status == "up_to_date"
+    assert report.breaking_changes == []
+
+
+def test_workflow_returns_typed_report_when_guidance_is_unavailable() -> None:
+    def unavailable(_version: str) -> OfficialGuidance:
+        raise GuidanceLookupError("offline")
+
+    report = analyze_stripe_python_upgrade(
+        "14.3.0", graph=_graph(guidance_lookup=unavailable)
+    )
+
+    assert report.status == "source_unavailable"
+    assert report.target_version == "15.2.0"
+    assert report.warnings == ["Official Stripe migration guidance is unavailable."]
+
+
+def test_workflow_returns_typed_report_when_release_is_unavailable() -> None:
+    def unavailable() -> StripeRelease:
+        raise ReleaseLookupError("offline")
+
+    graph = build_workflow(release_lookup=unavailable)
+    report = analyze_stripe_python_upgrade("14.3.0", graph=graph)
+
+    assert report.status == "source_unavailable"
+    assert report.target_version is None
+    assert report.warnings == ["The latest stable Stripe release is unavailable."]
+
+
+def test_workflow_rejects_a_malformed_installed_version() -> None:
+    with pytest.raises(ValidationError):
+        analyze_stripe_python_upgrade("fourteen", graph=_graph())

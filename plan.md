@@ -532,11 +532,11 @@ Exit check: passed on August 26, 2026. TrueForge returned `DRIFTFIX_TRUEFORGE_OK
 - [x] Implement Pydantic report schemas.
 - [x] Implement latest stable Stripe release lookup.
 - [x] Implement official changelog and migration-guide retrieval.
-- [ ] Implement the five-node LangGraph workflow.
-- [ ] Add one workflow test using saved HTTP responses or dependency injection.
-- [ ] Ensure network failures return a typed error report.
+- [x] Implement the five-node LangGraph workflow.
+- [x] Add one workflow test using saved HTTP responses or dependency injection.
+- [x] Ensure network failures return a typed error report.
 
-Exit check: a local Python call with a v14 version returns a sourced v15 migration report.
+Exit check: passed on August 26, 2026. A live local call for v14.3.0 returned a sourced v15.5.1 report from the five-node graph.
 
 ### Phase 3: MCP and demo target - August 27
 
@@ -694,8 +694,8 @@ DriftFix is done when:
 - [ ] A signed-in Codex user can start the localhost provider without an OpenAI Platform API key.
 - [x] TrueForge can use `codex-subscription` for plain messages and tool calls.
 - [ ] TrueForge can connect to the local MCP server.
-- [ ] The latest stable Stripe release is discovered automatically.
-- [ ] The report cites official evidence and does not hallucinate missing content.
+- [x] The latest stable Stripe release is discovered automatically.
+- [x] The report cites official evidence and does not hallucinate missing content.
 - [ ] The real v14-to-v15 fixture fails before the patch and passes after it.
 - [ ] Daytona performs the migration test.
 - [ ] A draft GitHub PR is created from a non-default branch.
