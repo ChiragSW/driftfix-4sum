@@ -127,6 +127,8 @@ def test_codex_process_uses_safe_flags_and_stdin(monkeypatch) -> None:
     async def fake_create_subprocess_exec(*args, **kwargs):
         captured["args"] = args
         captured["kwargs"] = kwargs
+        captured["cwd"] = Path(kwargs["cwd"])
+        captured["cwd_contents"] = list(Path(kwargs["cwd"]).iterdir())
         return FakeProcess()
 
     monkeypatch.setattr(provider, "which", lambda _name: "codex-fake")
@@ -142,8 +144,23 @@ def test_codex_process_uses_safe_flags_and_stdin(monkeypatch) -> None:
     assert arguments[0] == "codex-fake"
     assert arguments[-1] == "-"
     assert "read-only" in arguments
-    assert "shell_tool" in arguments
-    assert captured["kwargs"]["cwd"] != str(Path(__file__).parents[1])
+    disabled = {
+        arguments[index + 1]
+        for index, argument in enumerate(arguments[:-1])
+        if argument == "--disable"
+    }
+    assert {
+        "plugins",
+        "apps",
+        "shell_tool",
+        "browser_use",
+        "computer_use",
+        "image_generation",
+        "multi_agent",
+        "hooks",
+    } <= disabled
+    assert captured["cwd_contents"] == []
+    assert not captured["cwd"].exists()
 
 
 def test_child_environment_excludes_api_and_repository_secrets(monkeypatch) -> None:

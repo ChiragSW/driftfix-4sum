@@ -559,7 +559,7 @@ Exit check: passed on August 27, 2026. Inspector received structured MCP output;
 - [ ] Create the saved `driftfix` agent.
 - [ ] Configure tool filters and merge approval.
 - [ ] Confirm Impact Scout and Migration Reviewer are created by TrueForge and visible as subagent traces.
-- [ ] Confirm the Codex adapter cannot see the target checkout and returns only messages or tool calls.
+- [x] Confirm the Codex adapter cannot see the target checkout and returns only messages or tool calls.
 - [ ] Run the full migration in a fresh session.
 - [ ] Create a branch and draft PR from the result.
 - [ ] Verify Deny leaves the PR unmerged.
@@ -572,7 +572,8 @@ Exit check: one uninterrupted TrueForge session completes the whole judge story,
 - [ ] Open implementation PRs so Qodo reviews the code.
 - [ ] Address all relevant Qodo findings and document any rejected suggestion.
 - [x] Add MIT license and secret-safe `.gitignore`.
-- [ ] Write a short README with setup, architecture, safety, and demo commands.
+- [x] Write a short README with setup, architecture, safety, and demo commands.
+- [x] Scan current source and Git patch history for high-confidence credentials.
 - [ ] Add one screenshot of the migration report and one approval screenshot.
 - [ ] Add one screenshot showing the TrueForge trace with the MCP call, subagents, and Daytona execution.
 - [ ] Rehearse the demo twice from a clean checkout.
@@ -692,8 +693,8 @@ Only add more tests for bugs actually found during integration.
 
 DriftFix is done when:
 
-- [ ] A clean checkout can install and run the backend from README instructions.
-- [ ] A signed-in Codex user can start the localhost provider without an OpenAI Platform API key.
+- [x] A clean checkout can install and run the backend from README instructions.
+- [x] A signed-in Codex user can start the localhost provider without an OpenAI Platform API key.
 - [x] TrueForge can use `codex-subscription` for plain messages and tool calls.
 - [x] TrueForge can connect to the local MCP server.
 - [x] The latest stable Stripe release is discovered automatically.
@@ -704,7 +705,7 @@ DriftFix is done when:
 - [ ] Merge pauses for human approval.
 - [ ] The recorded trace proves that TrueForge owns MCP execution, both subagents, Daytona execution, GitHub actions, and the approval pause.
 - [ ] The TrueForge session survives one UI refresh or reconnect during rehearsal.
-- [ ] Codex cannot directly access the target checkout or credentials in provider mode.
+- [x] Codex cannot directly access the target checkout or credentials in provider mode.
 - [ ] Qodo has reviewed the implementation PR and relevant findings are addressed.
 - [ ] No secret exists in source, Git history, screenshots, or video.
 - [ ] README, demo video, short write-up, and AI-tool disclosure are ready.

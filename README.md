@@ -15,6 +15,10 @@ The Codex provider and DriftFix MCP connector are verified through TrueForge 0.1
 
 No OpenAI Platform API key is required.
 
+## Safety
+
+Codex runs read-only from an empty temporary directory and receives no GitHub, Daytona, or OpenAI API credentials. TrueForge owns every MCP, sandbox, subagent, and GitHub action; DriftFix works on a branch, requires passing tests, and never merges without human approval.
+
 ## Run the migration tools
 
 ```powershell
