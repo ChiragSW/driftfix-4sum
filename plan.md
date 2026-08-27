@@ -102,7 +102,7 @@ TrueForge chat and persistent session
   |                                                        |
   +-- DriftFix MCP connector ------------------------------+
   |                                                        |
-  |       Python FastMCP server                            |
+  |       Python MCPServer (FastMCP's v2 name)             |
   |         -> LangGraph migration workflow                |
   |         -> GitHub Releases API / official Stripe docs  |
   |         -> structured MigrationReport                  |
@@ -182,7 +182,7 @@ driftfix/
 |   `-- driftfix/
 |       |-- __init__.py
 |       |-- provider.py        # local OpenAI-compatible Codex adapter
-|       |-- server.py          # FastMCP tools and HTTP entry point
+|       |-- server.py          # MCP tools and Streamable HTTP entry point
 |       |-- workflow.py        # LangGraph state, nodes, and report builder
 |       `-- schemas.py         # Pydantic request/report models
 |-- demo_target/
@@ -540,9 +540,9 @@ Exit check: passed on August 26, 2026. A live local call for v14.3.0 returned a 
 
 ### Phase 3: MCP and demo target - August 27
 
-- [ ] Wrap the graph in two FastMCP read-only tools.
-- [ ] Run Streamable HTTP at `http://localhost:8000/mcp`.
-- [ ] Verify tools using MCP Inspector.
+- [x] Wrap the graph in two MCPServer (FastMCP v2) read-only tools.
+- [x] Run Streamable HTTP at `http://localhost:8000/mcp`.
+- [x] Verify both tools through the MCP protocol and Inspector CLI.
 - [ ] Add the v14 sample project and passing baseline test.
 - [ ] Confirm the test fails after upgrading to v15 without a source edit.
 - [ ] Confirm the minimal manual patch makes it pass.

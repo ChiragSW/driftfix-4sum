@@ -1,7 +1,9 @@
 """Deterministic Stripe release discovery and migration workflow pieces."""
 
+import logging
 import os
 import re
+import time
 from datetime import datetime
 from typing import Callable, NotRequired, TypedDict
 from urllib.parse import urlsplit
@@ -17,6 +19,8 @@ from .schemas import (
     StripeRelease,
     UpgradeRequest,
 )
+
+logger = logging.getLogger(__name__)
 
 GITHUB_RELEASE_URL = "https://api.github.com/repos/stripe/stripe-python/releases"
 STRIPE_RELEASE_PREFIX = "https://github.com/stripe/stripe-python/releases/"
@@ -337,6 +341,17 @@ def build_workflow(
     release_lookup: Callable[[], StripeRelease] = latest_stripe_python_release,
     guidance_lookup: Callable[[str], OfficialGuidance] = fetch_official_guidance,
 ):
+    def timed_node(name: str, node):
+        def run(state: WorkflowState) -> dict[str, object]:
+            started = time.perf_counter()
+            try:
+                return node(state)
+            finally:
+                elapsed_ms = (time.perf_counter() - started) * 1_000
+                logger.info("workflow_node name=%s duration_ms=%.1f", name, elapsed_ms)
+
+        return run
+
     def fetch_latest_stable_release(state: WorkflowState) -> dict[str, object]:
         try:
             release = release_lookup()
@@ -370,11 +385,20 @@ def build_workflow(
         return {"guidance": guidance}
 
     builder = StateGraph(WorkflowState)
-    builder.add_node("validate_request", validate_request)
-    builder.add_node("fetch_latest_stable_release", fetch_latest_stable_release)
-    builder.add_node("fetch_official_guidance", fetch_guidance)
-    builder.add_node("extract_breaking_changes", extract_breaking_changes)
-    builder.add_node("build_report", build_report)
+    builder.add_node("validate_request", timed_node("validate_request", validate_request))
+    builder.add_node(
+        "fetch_latest_stable_release",
+        timed_node("fetch_latest_stable_release", fetch_latest_stable_release),
+    )
+    builder.add_node(
+        "fetch_official_guidance",
+        timed_node("fetch_official_guidance", fetch_guidance),
+    )
+    builder.add_node(
+        "extract_breaking_changes",
+        timed_node("extract_breaking_changes", extract_breaking_changes),
+    )
+    builder.add_node("build_report", timed_node("build_report", build_report))
     builder.add_edge(START, "validate_request")
     builder.add_edge("validate_request", "fetch_latest_stable_release")
     builder.add_edge("fetch_latest_stable_release", "fetch_official_guidance")

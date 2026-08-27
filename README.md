@@ -15,6 +15,19 @@ The Codex provider is implemented and verified through TrueForge 0.1.4. A real h
 
 No OpenAI Platform API key is required.
 
+## Run the migration tools
+
+```powershell
+python -m pip install -e ".[dev]"
+python -m driftfix.server
+```
+
+The Streamable HTTP endpoint is `http://127.0.0.1:8000/mcp`. In another terminal, verify its two read-only schemas with the official Inspector CLI:
+
+```powershell
+npx -y @modelcontextprotocol/inspector --cli http://127.0.0.1:8000/mcp --method tools/list --strict
+```
+
 ## Run the verified model integration
 
 Start the provider:

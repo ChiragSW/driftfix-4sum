@@ -151,7 +151,7 @@ def _guidance() -> OfficialGuidance:
         migration_guide_url="https://github.com/stripe/stripe-python/wiki/Migration-guide-for-v15",
         changelog_text=(
             "## 15.2.0\nrelease notes\n"
-            "* Remove support for `legacy_field` on `Example`\n"
+            "* ⚠️ Remove support for `legacy_field` on `Example`\n"
             "## 14.0.0\n* old warning"
         ),
         migration_guide_text="""# Migration guide
