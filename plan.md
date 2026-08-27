@@ -543,11 +543,11 @@ Exit check: passed on August 26, 2026. A live local call for v14.3.0 returned a 
 - [x] Wrap the graph in two MCPServer (FastMCP v2) read-only tools.
 - [x] Run Streamable HTTP at `http://localhost:8000/mcp`.
 - [x] Verify both tools through the MCP protocol and Inspector CLI.
-- [ ] Add the v14 sample project and passing baseline test.
-- [ ] Confirm the test fails after upgrading to v15 without a source edit.
-- [ ] Confirm the minimal manual patch makes it pass.
+- [x] Add the v14 sample project and passing baseline test.
+- [x] Confirm the test fails after upgrading to v15 without a source edit.
+- [x] Confirm the minimal manual patch makes it pass.
 
-Exit check: TrueForge can call `analyze_stripe_python_upgrade` and receive structured output.
+Exit check: passed on August 27, 2026. Inspector received structured MCP output; the real fixture passed on Stripe 14.3.0, failed on 15.5.1 at `.get()`, and passed after the one-line `.to_dict().get()` repair.
 
 ### Phase 4: TrueForge end-to-end workflow - August 27 to 28
 
@@ -696,7 +696,7 @@ DriftFix is done when:
 - [ ] TrueForge can connect to the local MCP server.
 - [x] The latest stable Stripe release is discovered automatically.
 - [x] The report cites official evidence and does not hallucinate missing content.
-- [ ] The real v14-to-v15 fixture fails before the patch and passes after it.
+- [x] The real v14-to-v15 fixture fails before the patch and passes after it.
 - [ ] Daytona performs the migration test.
 - [ ] A draft GitHub PR is created from a non-default branch.
 - [ ] Merge pauses for human approval.

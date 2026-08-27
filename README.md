@@ -28,6 +28,19 @@ The Streamable HTTP endpoint is `http://127.0.0.1:8000/mcp`. In another terminal
 npx -y @modelcontextprotocol/inspector --cli http://127.0.0.1:8000/mcp --method tools/list --strict
 ```
 
+## Reproduce the migration demo
+
+The committed sample intentionally pins Stripe 14.3.0 and uses the old `StripeObject.get()` behavior:
+
+```powershell
+cd demo_target
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Upgrade only the demo environment to `stripe==15.5.1`; the same test fails at `customer.get("email")`. Replacing that expression with `customer.to_dict().get("email")` makes it pass. The repository keeps the outdated v14 version so DriftFix has a real migration to perform.
+
 ## Run the verified model integration
 
 Start the provider:
