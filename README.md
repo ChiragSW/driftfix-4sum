@@ -4,7 +4,7 @@ DriftFix turns Stripe SDK breaking changes into sourced, sandbox-tested migratio
 
 ## Status
 
-The Codex provider is implemented and verified through TrueForge 0.1.4. A real harness session returned `DRIFTFIX_TRUEFORGE_OK`, then emitted a traced `ask_user_question` tool call and paused for a client response. See [plan.md](plan.md) for the remaining backend and demo work.
+The Codex provider and DriftFix MCP connector are verified through TrueForge 0.1.4. A real harness session returned `DRIFTFIX_TRUEFORGE_OK`, emitted a traced `ask_user_question` tool call, and discovered both read-only DriftFix tools through TrueForge. See [plan.md](plan.md) for the remaining demo work.
 
 ## Prerequisites
 
@@ -44,6 +44,18 @@ Upgrade only the demo environment to `stripe==15.5.1`; the same test fails at `c
 ## TrueForge skill
 
 Attach [`agent/SKILL.md`](agent/SKILL.md) to the saved TrueForge agent. During rehearsal, confirm the trace loads `driftfix` and shows both named subagents, Daytona commands, GitHub actions, and the merge approval pause.
+
+## Configure TrueForge
+
+Start the Codex provider, DriftFix MCP server, and TrueForge first. Put the GitHub and Daytona credentials only in the current shell, then run the idempotent setup:
+
+```powershell
+$env:GITHUB_TOKEN = "<token>"
+$env:DAYTONA_API_KEY = "<key>"
+python scripts/configure_trueforge.py
+```
+
+The script creates or updates the custom model, read-only MCP, pinned DriftFix skill, Daytona provider, GitHub connector, and saved agent. It never prints credential values and skips secret-backed resources when either variable is absent. When TrueForge runs in WSL, bind both local servers to the Windows address shown as WSL's default gateway (`uvicorn --host <address>` and `$env:DRIFTFIX_HOST = "<address>"`), then set `CODEX_PROVIDER_BASE_URL` and `DRIFTFIX_MCP_URL` to that address before running the script.
 
 ## Run the verified model integration
 

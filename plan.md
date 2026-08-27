@@ -551,7 +551,9 @@ Exit check: passed on August 27, 2026. Inspector received structured MCP output;
 
 ### Phase 4: TrueForge end-to-end workflow - August 27 to 28
 
-- [ ] Add the DriftFix MCP and GitHub connectors.
+- [x] Add an idempotent, secret-safe setup script for the model, MCP, skill, Daytona, GitHub, and saved-agent manifests.
+- [x] Add the DriftFix MCP connector and verify both read-only tools from TrueForge.
+- [ ] Add the GitHub connector.
 - [x] Add the compact DriftFix skill.
 - [ ] Enable Daytona and dynamic subagents.
 - [ ] Create the saved `driftfix` agent.
@@ -693,7 +695,7 @@ DriftFix is done when:
 - [ ] A clean checkout can install and run the backend from README instructions.
 - [ ] A signed-in Codex user can start the localhost provider without an OpenAI Platform API key.
 - [x] TrueForge can use `codex-subscription` for plain messages and tool calls.
-- [ ] TrueForge can connect to the local MCP server.
+- [x] TrueForge can connect to the local MCP server.
 - [x] The latest stable Stripe release is discovered automatically.
 - [x] The report cites official evidence and does not hallucinate missing content.
 - [x] The real v14-to-v15 fixture fails before the patch and passes after it.

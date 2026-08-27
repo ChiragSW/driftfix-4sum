@@ -1,6 +1,7 @@
 """Read-only MCP transport for the deterministic DriftFix workflow."""
 
 import logging
+import os
 
 from mcp.server import MCPServer
 from mcp.types import ToolAnnotations
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     mcp.run(
         transport="streamable-http",
-        host="127.0.0.1",
-        port=8000,
+        host=os.getenv("DRIFTFIX_HOST", "127.0.0.1"),
+        port=int(os.getenv("DRIFTFIX_PORT", "8000")),
         streamable_http_path="/mcp",
     )
