@@ -504,12 +504,13 @@ Fail the demo rehearsal if any consequential operation appears only in adapter l
 - [x] Run `codex login` using the Codex subscription.
 - [x] Run one read-only, ephemeral `codex exec` smoke test and confirm it uses saved login.
 - [x] Run TrueForge locally and open `http://localhost:8790` (verified with the WSL/pnpm fallback because TrueForge 0.1.4 fails on native Windows path imports).
-- [ ] Create a Daytona account and API key.
-- [ ] Give the Daytona key write/delete snapshot and write sandbox permissions.
-- [ ] Add Daytona under TrueForge Settings -> Sandbox providers.
-- [ ] Create the public GitHub repository.
+- [x] Create a valid Daytona API key.
+- [x] Verify the key has the sandbox and snapshot permissions required by TrueForge provider setup.
+- [x] Add Daytona under TrueForge Settings -> Sandbox providers.
+- [x] Create the public GitHub repository and verify both `main` and `chirag` are anonymously readable.
 - [ ] Enable branch protection on `main` and require pull requests.
-- [ ] Sign in to Qodo with GitHub and install the Qodo app on this repository.
+- [ ] Authenticate Qodo CLI (`qodo login` currently fails with `Connection lost`).
+- [ ] Install the Qodo GitHub app on this repository.
 
 Exit check: Codex works without an OpenAI Platform API key; TrueForge starts; Daytona, GitHub, and Qodo accounts are ready.
 
@@ -553,13 +554,14 @@ Exit check: passed on August 27, 2026. Inspector received structured MCP output;
 
 - [x] Add an idempotent, secret-safe setup script for the model, MCP, skill, Daytona, GitHub, and saved-agent manifests.
 - [x] Add the DriftFix MCP connector and verify both read-only tools from TrueForge.
-- [ ] Add the GitHub connector.
+- [x] Add the GitHub connector and verify 44 tools, including `merge_pull_request`.
 - [x] Add the compact DriftFix skill.
-- [ ] Enable Daytona and dynamic subagents.
-- [ ] Create the saved `driftfix` agent.
-- [ ] Configure tool filters and merge approval.
+- [x] Enable Daytona and dynamic subagents.
+- [x] Create the saved `driftfix` agent.
+- [x] Configure read-only DriftFix tools and approval-gate `merge_pull_request`.
 - [ ] Confirm Impact Scout and Migration Reviewer are created by TrueForge and visible as subagent traces.
 - [x] Confirm the Codex adapter cannot see the target checkout and returns only messages or tool calls.
+- [x] Verify an existing session ID and timestamps survive a full TrueForge process restart.
 - [ ] Run the full migration in a fresh session.
 - [ ] Create a branch and draft PR from the result.
 - [ ] Verify Deny leaves the PR unmerged.

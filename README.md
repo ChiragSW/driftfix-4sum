@@ -4,7 +4,7 @@ DriftFix turns Stripe SDK breaking changes into sourced, sandbox-tested migratio
 
 ## Status
 
-The Codex provider and DriftFix MCP connector are verified through TrueForge 0.1.4. A real harness session returned `DRIFTFIX_TRUEFORGE_OK`, emitted a traced `ask_user_question` tool call, and discovered both read-only DriftFix tools through TrueForge. See [plan.md](plan.md) for the remaining demo work.
+The Codex provider, DriftFix MCP, GitHub connector, Daytona provider, and saved `driftfix` agent are verified through TrueForge 0.1.4. The live policy exposes both DriftFix tools as read-only and requires approval for GitHub merge. See [plan.md](plan.md) for the remaining full-flow rehearsal.
 
 ## Prerequisites
 
