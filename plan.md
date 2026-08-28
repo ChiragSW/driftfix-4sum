@@ -559,10 +559,11 @@ Exit check: passed on August 27, 2026. Inspector received structured MCP output;
 - [x] Enable Daytona and dynamic subagents.
 - [x] Create the saved `driftfix` agent.
 - [x] Configure read-only DriftFix tools and approval-gate `merge_pull_request`.
-- [ ] Confirm Impact Scout and Migration Reviewer are created by TrueForge and visible as subagent traces.
+- [x] Confirm Impact Scout and Migration Reviewer are created by TrueForge and visible as subagent traces.
+- [x] Run a harmless command in a Daytona sandbox through TrueForge.
 - [x] Confirm the Codex adapter cannot see the target checkout and returns only messages or tool calls.
 - [x] Verify an existing session ID and timestamps survive a full TrueForge process restart.
-- [ ] Run the full migration in a fresh session.
+- [x] Run the full migration in a fresh session.
 - [ ] Create a branch and draft PR from the result.
 - [ ] Verify Deny leaves the PR unmerged.
 - [ ] Verify Allow merges only after tests pass.
@@ -702,7 +703,7 @@ DriftFix is done when:
 - [x] The latest stable Stripe release is discovered automatically.
 - [x] The report cites official evidence and does not hallucinate missing content.
 - [x] The real v14-to-v15 fixture fails before the patch and passes after it.
-- [ ] Daytona performs the migration test.
+- [x] Daytona performs the migration test.
 - [ ] A draft GitHub PR is created from a non-default branch.
 - [ ] Merge pauses for human approval.
 - [ ] The recorded trace proves that TrueForge owns MCP execution, both subagents, Daytona execution, GitHub actions, and the approval pause.

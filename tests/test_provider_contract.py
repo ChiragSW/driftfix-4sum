@@ -296,6 +296,55 @@ def test_invalid_output_is_retried_once(monkeypatch) -> None:
     assert attempts == 2
 
 
+def test_invalid_output_log_excludes_model_content(caplog) -> None:
+    output = json.dumps(
+        {
+            "type": "item.completed",
+            "item": {
+                "type": "agent_message",
+                "text": json.dumps(
+                    {
+                        "kind": "tool_calls",
+                        "content": "",
+                        "calls": [{"name": "exec", "arguments": "sensitive-value"}],
+                    }
+                ),
+            },
+        }
+    )
+
+    with caplog.at_level("WARNING", logger="driftfix.provider"):
+        with pytest.raises(provider.ProviderError):
+            provider.parse_codex_jsonl(output)
+
+    assert "codex_output_validation_failed" in caplog.text
+    assert "sensitive-value" not in caplog.text
+
+
+def test_parser_normalizes_a_message_wrapped_tool_call() -> None:
+    output = json.dumps(
+        {
+            "type": "item.completed",
+            "item": {
+                "type": "agent_message",
+                "text": json.dumps(
+                    {
+                        "kind": "message",
+                        "content": "I will run the harness tool.",
+                        "calls": [{"name": "exec", "arguments": "{}"}],
+                    }
+                ),
+            },
+        }
+    )
+
+    result = provider.parse_codex_jsonl(output)
+
+    assert result.turn.kind == "tool_calls"
+    assert result.turn.content == ""
+    assert result.turn.calls[0].name == "exec"
+
+
 def test_third_codex_request_waits_for_a_slot(monkeypatch) -> None:
     entered: list[str] = []
 

@@ -12,7 +12,7 @@ import httpx
 
 
 REPOSITORY_URL = "https://github.com/rounakkm/driftfix-4sum.git"
-SKILL_REF = "e030518"
+SKILL_REF = "chirag"
 
 
 def _service_url(value: str, name: str, *, loopback_only: bool = False) -> str:

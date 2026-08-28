@@ -42,6 +42,15 @@ def test_configure_creates_complete_secret_safe_agent() -> None:
     assert manifest["config"]["dynamic_sub_agents"]["enabled"] is True
     assert manifest["config"]["iteration_limit"] == 30
 
+    skill = next(
+        request
+        for request in requests
+        if request.method == "PUT"
+        and request.url.path == "/api/v1/settings/skills"
+    )
+    skill_manifest = json.loads(skill.content)["manifest"]
+    assert skill_manifest["ref"] == "chirag"
+
 
 def test_configure_skips_secret_backed_resources_and_agent() -> None:
     requests: list[httpx.Request] = []

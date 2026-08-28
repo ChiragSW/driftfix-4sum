@@ -394,8 +394,25 @@ def parse_codex_jsonl(output: str) -> CodexResult:
             502, "codex_missing_output", "Codex returned no final agent message."
         )
     try:
-        turn = CodexTurn.model_validate_json(final_message)
-    except ValidationError as exc:
+        raw_turn = json.loads(final_message)
+        if isinstance(raw_turn, dict):
+            content = raw_turn.get("content")
+            calls = raw_turn.get("calls")
+            if isinstance(content, str) and isinstance(calls, list):
+                raw_turn["kind"] = "tool_calls" if calls else "message"
+                if calls:
+                    raw_turn["content"] = ""
+        turn = CodexTurn.model_validate(raw_turn)
+    except (json.JSONDecodeError, ValidationError) as exc:
+        issues = [("json_decode", ())]
+        if isinstance(exc, ValidationError):
+            issues = [
+                (error["type"], tuple(error["loc"]))
+                for error in exc.errors(
+                    include_url=False, include_context=False, include_input=False
+                )
+            ]
+        logger.warning("codex_output_validation_failed issues=%s", issues)
         raise ProviderError(
             502, "codex_invalid_output", "Codex returned an invalid structured result."
         ) from exc
