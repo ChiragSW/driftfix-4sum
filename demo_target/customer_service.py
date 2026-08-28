@@ -1,7 +1,7 @@
-"""Intentionally outdated Stripe integration used by the DriftFix demo."""
+from __future__ import annotations
 
 import stripe
 
 
 def customer_email(customer: stripe.Customer) -> str | None:
-    return customer.get("email")
+    return customer.to_dict().get("email")
