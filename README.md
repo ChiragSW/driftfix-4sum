@@ -89,3 +89,11 @@ npx @truefoundry/trueforge@latest --port 8790
 In TrueForge Settings -> Models, add a custom provider named `codex-local`, use base URL `http://127.0.0.1:8765/v1`, and add model `codex-subscription`. Leave the API key blank.
 
 TrueForge 0.1.4 currently fails during database migration when launched natively on this Windows machine. The verified fallback is WSL with Node 22 and `corepack pnpm@9.15.9 dlx @truefoundry/trueforge@latest --port 8790`. In that setup, bind the provider to the Windows address reported as WSL's default gateway and use `http://<WSL_HOST_IP>:8765/v1` as the model base URL. Keep both services local.
+
+## Verified hackathon evidence
+
+- TrueForge session `01m14g71c8zg1fpz5fe84n2by2` found Stripe 15.6.0, ran Impact Scout and Migration Reviewer, and recorded Daytona results of 7 legacy tests passing on v14, the same 7 failing after a dependency-only v15 upgrade, and 7 migrated tests passing.
+- TrueForge session `01m14gz3tg1kpbhapxpd2yxbaz` held the GitHub merge call for human approval before merging [PR #1](https://github.com/ChiragSW/driftfix-4sum/pull/1).
+- Qodo reviewed the implementation, its reproducibility finding was fixed with the runnable `legacy` fixture, and its latest result reported zero bugs and zero rule violations.
+
+AI-assistant disclosure: Codex supplied model reasoning through the local read-only adapter and helped implement and test this repository. TrueForge remained responsible for MCP calls, subagents, Daytona execution, GitHub actions, session state, and the human merge checkpoint.
