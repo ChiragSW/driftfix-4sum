@@ -16,7 +16,7 @@ DriftFix finds the newest stable Stripe Python SDK release, reads Stripe's offic
 - Outer agent harness and interface: TrueForge.
 - API provider being migrated: Stripe.
 - Demo migration: `stripe-python` v14 to v15.
-- Demo breaking change: `StripeObject.get()` no longer exists in v15; migrate to `to_dict().get()` or safe attribute access.
+- Demo breaking change: `StripeObject` mapping methods no longer exist in v15; migrate through `to_dict()` or safe attribute access.
 - Change source: automatically discover the latest stable `stripe-python` GitHub release and read the official changelog/migration guide.
 - Repository: one public repository containing DriftFix and a tiny outdated sample project.
 - Model provider: a local OpenAI-compatible Codex adapter configured as a custom provider in TrueForge.
@@ -148,23 +148,23 @@ At no point may the adapter run GitHub commands, edit the checked-out target rep
 
 ## 8. Exact demo scenario
 
-The checked-in sample project starts on Stripe Python v14 and contains code equivalent to:
+The checked-in `demo_target/legacy` fixture starts on Stripe Python v14 and contains customer and invoice code equivalent to:
 
 ```python
 def customer_name(customer):
     return customer.get("name", "Unknown")
 ```
 
-The sample test passes on v14. Stripe Python v15 removes dictionary methods from `StripeObject`, so the same test fails after the dependency upgrade. The expected repair is:
+The legacy tests pass on v14. Stripe Python v15 removes dictionary methods from `StripeObject`, so the same tests fail after the dependency upgrade at `.get()`, `.keys()`, `.items()`, and `dict(stripe_object)`. The expected repair converts the object once before dictionary operations:
 
 ```python
 def customer_name(customer):
     return customer.to_dict().get("name", "Unknown")
 ```
 
-The fixture must use an actual `stripe.StripeObject`, but it must not call Stripe's network API. This keeps the demonstration real, free, fast, and safe.
+The parent `demo_target` project pins Stripe v15.6.0 and contains the complete migrated result. Both fixtures use actual Stripe resource objects but never call Stripe's network API. This keeps the demonstration reproducible, real, free, fast, and safe.
 
-The report should also mention other v15 changes, such as native `Decimal` fields, but DriftFix only patches the `.get()` case in the MVP.
+The report should also mention other v15 changes, such as native `Decimal` fields, while the executable demo patches the removed mapping behavior.
 
 ## 9. Repository layout
 
@@ -186,9 +186,12 @@ driftfix/
 |       |-- workflow.py        # LangGraph state, nodes, and report builder
 |       `-- schemas.py         # Pydantic request/report models
 |-- demo_target/
-|   |-- pyproject.toml         # pins Stripe v14 initially
-|   |-- customer_service.py    # intentionally outdated usage
-|   `-- test_customer_service.py
+|   |-- pyproject.toml         # migrated Stripe v15 result
+|   |-- customer_service.py
+|   |-- invoice_service.py
+|   |-- test_customer_service.py
+|   |-- test_invoice_service.py
+|   `-- legacy/                # runnable Stripe v14 starting point
 |-- tests/
 |   `-- test_workflow.py       # one focused backend workflow test
 |-- agent/

@@ -34,16 +34,27 @@ npx -y @modelcontextprotocol/inspector --cli http://127.0.0.1:8000/mcp --method 
 
 ## Reproduce the migration demo
 
-The committed sample intentionally pins Stripe 14.3.0 and uses the old `StripeObject.get()` behavior:
+`demo_target/legacy` is the reusable pre-migration fixture. It pins Stripe 14.3.0 and uses the removed `StripeObject` mapping methods across customer and invoice code:
 
 ```powershell
-cd demo_target
+cd demo_target\legacy
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m pip install stripe==15.6.0
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+The first test run passes on v14; the second fails on v15 at `.get()`, `.keys()`, `.items()`, and `dict(stripe_object)`. The parent `demo_target` directory is the migrated result and pins Stripe 15.6.0:
+
+```powershell
+cd ..
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Upgrade only the demo environment to `stripe==15.5.1`; the same test fails at `customer.get("email")`. Replacing that expression with `customer.to_dict().get("email")` makes it pass. The repository keeps the outdated v14 version so DriftFix has a real migration to perform.
+Its tests pass after converting Stripe objects with `to_dict()`. Neither fixture calls Stripe's network API.
 
 ## TrueForge skill
 
