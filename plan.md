@@ -48,24 +48,24 @@ Keep all credentials out of Git:
 
 The MVP is complete only when one recorded flow can do all of the following:
 
-- [ ] Read the demo repository's installed Stripe version.
-- [ ] Automatically discover the newest stable Stripe Python release.
-- [ ] Ignore draft and prerelease versions.
-- [ ] Fetch the official Stripe changelog and v15 migration guide.
-- [ ] Return source URLs with every reported breaking change.
-- [ ] Serve Codex through the local OpenAI-compatible adapter without an OpenAI API key.
-- [ ] Show that TrueForge, not Codex, initiates the DriftFix MCP calls and subagent turns.
-- [ ] Identify the demo project's incompatible `.get()` usage.
-- [ ] Show a failing test after upgrading the dependency without changing the code.
-- [ ] Generate the minimal code and dependency patch.
-- [ ] Run the patched project in a Daytona sandbox.
-- [ ] Show the same test passing after the patch.
-- [ ] Create a branch and draft pull request through the GitHub connector.
-- [ ] Show the changed files, test evidence, and source evidence in TrueForge.
-- [ ] Show TrueForge traces for the model turn, MCP call, both subagents, Daytona execution, and approval pause.
-- [ ] Refresh or reconnect once and continue the same TrueForge session.
-- [ ] Pause before merge and show Allow and Deny controls.
-- [ ] Leave `main` unchanged when approval is denied.
+- [x] Read the demo repository's installed Stripe version.
+- [x] Automatically discover the newest stable Stripe Python release.
+- [x] Ignore draft and prerelease versions.
+- [x] Fetch the official Stripe changelog and v15 migration guide.
+- [x] Return source URLs with every reported breaking change.
+- [x] Serve Codex through the local OpenAI-compatible adapter without an OpenAI API key.
+- [x] Show that TrueForge, not Codex, initiates the DriftFix MCP calls and subagent turns.
+- [x] Identify the demo project's incompatible Stripe mapping usage.
+- [x] Show failing tests after upgrading the dependency without changing the code.
+- [x] Generate the minimal code and dependency patch.
+- [x] Run the patched project in a Daytona sandbox.
+- [x] Show the same tests passing after the patch.
+- [x] Create a branch and draft pull request through the GitHub connector.
+- [x] Show the changed files, test evidence, and source evidence in TrueForge.
+- [x] Show TrueForge traces for the model turn, MCP call, both subagents, Daytona execution, and approval pause.
+- [x] Refresh or reconnect once and continue the same TrueForge session.
+- [x] Pause before merge and show Allow and Deny controls.
+- [x] Leave `main` unchanged when approval is denied.
 - [ ] Complete the recorded happy path in about 2 minutes 30 seconds.
 
 ## 5. Non-goals
@@ -513,7 +513,7 @@ Fail the demo rehearsal if any consequential operation appears only in adapter l
 - [x] Create the public GitHub repository and verify both `main` and `chirag` are anonymously readable.
 - [ ] Enable branch protection on `main` and require pull requests.
 - [ ] Authenticate Qodo CLI (`qodo login` currently fails with `Connection lost`).
-- [ ] Install the Qodo GitHub app on this repository.
+- [x] Install the Qodo GitHub app on this repository.
 
 Exit check: Codex works without an OpenAI Platform API key; TrueForge starts; Daytona, GitHub, and Qodo accounts are ready.
 
@@ -567,22 +567,22 @@ Exit check: passed on August 27, 2026. Inspector received structured MCP output;
 - [x] Confirm the Codex adapter cannot see the target checkout and returns only messages or tool calls.
 - [x] Verify an existing session ID and timestamps survive a full TrueForge process restart.
 - [x] Run the full migration in a fresh session.
-- [ ] Create a branch and draft PR from the result.
-- [ ] Verify Deny leaves the PR unmerged.
+- [x] Create a branch and draft PR from the result.
+- [x] Verify Deny leaves the PR unmerged.
 - [ ] Verify Allow merges only after tests pass.
 
 Exit check: one uninterrupted TrueForge session completes the whole judge story, and its trace proves TrueForge performed every tool, sandbox, delegation, and approval step.
 
 ### Phase 5: quality and submission - August 29 to 30
 
-- [ ] Open implementation PRs so Qodo reviews the code.
-- [ ] Address all relevant Qodo findings and document any rejected suggestion.
+- [x] Open implementation PRs so Qodo reviews the code.
+- [x] Address all relevant Qodo findings and document any rejected suggestion.
 - [x] Add MIT license and secret-safe `.gitignore`.
 - [x] Write a short README with setup, architecture, safety, and demo commands.
 - [x] Scan current source and Git patch history for high-confidence credentials.
 - [ ] Add one screenshot of the migration report and one approval screenshot.
 - [ ] Add one screenshot showing the TrueForge trace with the MCP call, subagents, and Daytona execution.
-- [ ] Rehearse the demo twice from a clean checkout.
+- [x] Rehearse the demo twice from a clean checkout.
 - [ ] Record the approximately three-minute video.
 - [ ] Add the public repository, video, write-up, and AI-assistant disclosure to the submission.
 - [ ] Submit before the internal 10:00 PM IST target on August 30.
@@ -605,6 +605,9 @@ Exit check: one uninterrupted TrueForge session completes the whole judge story,
 | v14 demo before dependency upgrade | Test passes |
 | v15 dependency with old `.get()` code | Test fails for the expected reason |
 | v15 dependency with patched code | Test passes |
+| Larger v14 customer and invoice fixture | Seven tests pass |
+| Larger fixture after dependency-only v15 upgrade | Seven tests fail across `.get`, `.keys`, `.items`, and `dict(object)` |
+| Larger migrated fixture on v15 | Seven tests pass |
 | Merge tool called | TrueForge approval card appears |
 | Merge denied | PR remains open and `main` is unchanged |
 | Adapter process attempts repository access | It cannot access the target checkout and cannot mutate files |
@@ -707,13 +710,13 @@ DriftFix is done when:
 - [x] The report cites official evidence and does not hallucinate missing content.
 - [x] The real v14-to-v15 fixture fails before the patch and passes after it.
 - [x] Daytona performs the migration test.
-- [ ] A draft GitHub PR is created from a non-default branch.
-- [ ] Merge pauses for human approval.
-- [ ] The recorded trace proves that TrueForge owns MCP execution, both subagents, Daytona execution, GitHub actions, and the approval pause.
-- [ ] The TrueForge session survives one UI refresh or reconnect during rehearsal.
+- [x] A draft GitHub PR is created from a non-default branch.
+- [x] Merge pauses for human approval.
+- [x] The recorded trace proves that TrueForge owns MCP execution, both subagents, Daytona execution, GitHub actions, and the approval pause.
+- [x] The TrueForge session survives one UI refresh or reconnect during rehearsal.
 - [x] Codex cannot directly access the target checkout or credentials in provider mode.
-- [ ] Qodo has reviewed the implementation PR and relevant findings are addressed.
-- [ ] No secret exists in source, Git history, screenshots, or video.
+- [x] Qodo has reviewed the implementation PR and relevant findings are addressed.
+- [x] No secret exists in source or Git history; screenshot and video capture must retain this boundary.
 - [ ] README, demo video, short write-up, and AI-tool disclosure are ready.
 - [ ] The final submission has been opened once after submitting to verify its links.
 
