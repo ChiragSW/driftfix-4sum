@@ -73,6 +73,7 @@ python -m uvicorn driftfix.provider:app --app-dir src --host 127.0.0.1 --port 87
 ```
 
 Set the variable in the same terminal before starting the provider. Restart the provider after changing it.
+Run only one provider process on port `8765`; streaming requests send keepalives while Codex works.
 
 Start TrueForge in another terminal:
 

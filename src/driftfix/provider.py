@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 MODEL_ID = "codex-subscription"
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "codex_turn.schema.json"
 DEFAULT_TIMEOUT_SECONDS = 600.0
+STREAM_KEEPALIVE_SECONDS = 15.0
 AUTH_CHECK_TIMEOUT_SECONDS = 5.0
 DEFAULT_MAX_CONCURRENCY = 2
 MAX_PROMPT_CHARACTERS = 100_000
@@ -194,8 +195,16 @@ async def chat_completions(
 
     request_id = uuid.uuid4().hex
     started_at = time.perf_counter()
+    prompt = build_prompt(body)
+    if body.stream:
+        return StreamingResponse(
+            _stream_completion(prompt, body, request_id, started_at),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache"},
+        )
+
     try:
-        result = await run_codex(build_prompt(body))
+        result = await run_codex(prompt)
         completion = to_chat_completion(result, body)
     except ProviderError as error:
         logger.warning(
@@ -212,12 +221,6 @@ async def chat_completions(
         int((time.perf_counter() - started_at) * 1000),
         result.turn.kind,
     )
-    if body.stream:
-        return StreamingResponse(
-            _sse_events(completion),
-            media_type="text/event-stream",
-            headers={"Cache-Control": "no-cache"},
-        )
     return completion
 
 
@@ -342,6 +345,10 @@ async def _run_codex_once(prompt: str) -> CodexResult:
             stdout, stderr = await asyncio.wait_for(
                 process.communicate(prompt.encode("utf-8")), timeout=_timeout_seconds()
             )
+        except asyncio.CancelledError:
+            process.kill()
+            await process.communicate()
+            raise
         except TimeoutError as exc:
             process.kill()
             await process.communicate()
@@ -474,6 +481,50 @@ def to_chat_completion(
             "total_tokens": prompt_tokens + completion_tokens,
         },
     }
+
+
+async def _stream_completion(
+    prompt: str,
+    request: ChatCompletionRequest,
+    request_id: str,
+    started_at: float,
+):
+    task = asyncio.create_task(run_codex(prompt))
+    try:
+        while not task.done():
+            yield ": keepalive\n\n"
+            try:
+                await asyncio.wait_for(
+                    asyncio.shield(task), timeout=STREAM_KEEPALIVE_SECONDS
+                )
+            except TimeoutError:
+                pass
+
+        result = await task
+        completion = to_chat_completion(result, request)
+        logger.info(
+            "provider_turn request_id=%s duration_ms=%d response_kind=%s",
+            request_id,
+            int((time.perf_counter() - started_at) * 1000),
+            result.turn.kind,
+        )
+        async for event in _sse_events(completion):
+            yield event
+    except ProviderError as error:
+        logger.warning(
+            "provider_turn request_id=%s duration_ms=%d exit_category=%s",
+            request_id,
+            int((time.perf_counter() - started_at) * 1000),
+            error.code,
+        )
+        raise
+    finally:
+        if not task.done():
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
 
 async def _sse_events(completion: dict[str, Any]):

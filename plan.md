@@ -407,7 +407,7 @@ Adapter rules:
 - Treat nonzero exit, timeout, login expiry, malformed JSONL, and rate limiting as typed provider errors.
 - Never log prompts, repository contents, credentials, Codex auth data, or raw tool outputs. Log request ID, duration, exit category, and response kind only.
 - Do not pass `GITHUB_TOKEN`, Daytona credentials, or repository secrets into the Codex child process.
-- Support non-streaming first. If TrueForge requires `stream=true`, buffer the validated Codex result and emit standards-shaped SSE chunks; do not build token-level streaming for the MVP.
+- Buffer the validated Codex result, but send SSE keepalives immediately while Codex works so TrueForge does not hit its HTTP headers timeout; token-level streaming is not needed for the MVP.
 - Keep TrueForge session state authoritative. Do not add a second conversation database.
 - Defer Codex App Server until after the demo works; `codex exec` is simpler and officially intended for scripted jobs.
 

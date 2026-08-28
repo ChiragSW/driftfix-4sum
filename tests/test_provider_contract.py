@@ -377,7 +377,7 @@ def test_third_codex_request_waits_for_a_slot(monkeypatch) -> None:
     assert len(entered) == 3
 
 
-def test_buffered_streaming_returns_sse(monkeypatch) -> None:
+def test_streaming_starts_with_keepalive_and_returns_sse(monkeypatch) -> None:
     async def fake_run_codex(_prompt: str) -> provider.CodexResult:
         return provider.CodexResult(
             turn=provider.CodexTurn(kind="message", content="Hello", calls=[]),
@@ -396,12 +396,13 @@ def test_buffered_streaming_returns_sse(monkeypatch) -> None:
 
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/event-stream")
+    assert response.text.startswith(": keepalive\n\n")
     assert '"delta":{"content":"Hello"}' in response.text
     assert '"finish_reason":"stop"' in response.text
     assert response.text.endswith("data: [DONE]\n\n")
 
 
-def test_buffered_streaming_preserves_tool_calls(monkeypatch) -> None:
+def test_streaming_preserves_tool_calls(monkeypatch) -> None:
     async def fake_run_codex(_prompt: str) -> provider.CodexResult:
         return provider.CodexResult(
             turn=provider.CodexTurn(
