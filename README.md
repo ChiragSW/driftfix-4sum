@@ -34,10 +34,10 @@ npx -y @modelcontextprotocol/inspector --cli http://127.0.0.1:8000/mcp --method 
 
 ## Reproduce the migration demo
 
-`demo_target/legacy` is the reusable pre-migration fixture. It pins Stripe 14.3.0 and uses the removed `StripeObject` mapping methods across customer and invoice code:
+`demo_target` is intentionally kept on Stripe 14.3.0 and uses `StripeObject` mapping methods removed in v15. This is the fixable starting point the agent should upgrade on a new branch:
 
 ```powershell
-cd demo_target\legacy
+cd demo_target
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 .\.venv\Scripts\python.exe -m pytest -q
@@ -45,16 +45,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-The first test run passes on v14; the second fails on v15 at `.get()`, `.keys()`, `.items()`, and `dict(stripe_object)`. The parent `demo_target` directory is the migrated result and pins Stripe 15.6.0:
-
-```powershell
-cd ..
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe -m pytest -q
-```
-
-Its tests pass after converting Stripe objects with `to_dict()`. Neither fixture calls Stripe's network API.
+The first test run passes on v14; the dependency-only v15 upgrade then fails at `.get()`, `.keys()`, `.items()`, and `dict(stripe_object)`. A valid agent PR updates the dependency, converts Stripe objects with `to_dict()`, and returns all seven tests to green. The fixture never calls Stripe's network API.
 
 ## TrueForge skill
 
@@ -77,8 +68,11 @@ The script creates or updates the custom model, read-only MCP, pinned DriftFix s
 Start the provider:
 
 ```powershell
+$env:CODEX_PROVIDER_TIMEOUT_SECONDS = "600"
 python -m uvicorn driftfix.provider:app --app-dir src --host 127.0.0.1 --port 8765
 ```
+
+Set the variable in the same terminal before starting the provider. Restart the provider after changing it.
 
 Start TrueForge in another terminal:
 
@@ -94,6 +88,6 @@ TrueForge 0.1.4 currently fails during database migration when launched natively
 
 - TrueForge session `01m14g71c8zg1fpz5fe84n2by2` found Stripe 15.6.0, ran Impact Scout and Migration Reviewer, and recorded Daytona results of 7 legacy tests passing on v14, the same 7 failing after a dependency-only v15 upgrade, and 7 migrated tests passing.
 - TrueForge session `01m14gz3tg1kpbhapxpd2yxbaz` held the GitHub merge call for human approval before merging [PR #1](https://github.com/ChiragSW/driftfix-4sum/pull/1).
-- Qodo reviewed the implementation, its reproducibility finding was fixed with the runnable `legacy` fixture, and its latest result reported zero bugs and zero rule violations.
+- Qodo reviewed the implementation, its reproducibility finding was fixed with a runnable v14 fixture, and its latest result reported zero bugs and zero rule violations.
 
 AI-assistant disclosure: Codex supplied model reasoning through the local read-only adapter and helped implement and test this repository. TrueForge remained responsible for MCP calls, subagents, Daytona execution, GitHub actions, session state, and the human merge checkpoint.

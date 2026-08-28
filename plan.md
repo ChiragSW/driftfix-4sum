@@ -148,7 +148,7 @@ At no point may the adapter run GitHub commands, edit the checked-out target rep
 
 ## 8. Exact demo scenario
 
-The checked-in `demo_target/legacy` fixture starts on Stripe Python v14 and contains customer and invoice code equivalent to:
+The checked-in `demo_target` starts on Stripe Python v14 and contains customer and invoice code equivalent to:
 
 ```python
 def customer_name(customer):
@@ -162,7 +162,7 @@ def customer_name(customer):
     return customer.to_dict().get("name", "Unknown")
 ```
 
-The parent `demo_target` project pins Stripe v15.6.0 and contains the complete migrated result. Both fixtures use actual Stripe resource objects but never call Stripe's network API. This keeps the demonstration reproducible, real, free, fast, and safe.
+The base branch intentionally contains only this outdated project. The agent creates the Stripe v15.6.0 migration on a new branch and opens a human-reviewed PR. The fixture uses actual Stripe resource objects but never calls Stripe's network API. This keeps the demonstration reproducible, real, free, fast, and safe.
 
 The report should also mention other v15 changes, such as native `Decimal` fields, while the executable demo patches the removed mapping behavior.
 
@@ -186,12 +186,11 @@ driftfix/
 |       |-- workflow.py        # LangGraph state, nodes, and report builder
 |       `-- schemas.py         # Pydantic request/report models
 |-- demo_target/
-|   |-- pyproject.toml         # migrated Stripe v15 result
+|   |-- pyproject.toml         # intentionally outdated Stripe v14 target
 |   |-- customer_service.py
 |   |-- invoice_service.py
 |   |-- test_customer_service.py
-|   |-- test_invoice_service.py
-|   `-- legacy/                # runnable Stripe v14 starting point
+|   `-- test_invoice_service.py
 |-- tests/
 |   `-- test_workflow.py       # one focused backend workflow test
 |-- agent/
@@ -403,7 +402,7 @@ Adapter rules:
 - Only return tool names present in the current TrueForge request.
 - Never execute a requested MCP, GitHub, Daytona, or shell tool inside the adapter.
 - Use `read-only` and `--ephemeral` for every provider turn.
-- Allow at most two concurrent Codex processes and enforce a 180-second timeout.
+- Allow at most two concurrent Codex processes and enforce a 600-second timeout.
 - Retry once only when Codex finishes successfully but returns invalid structured output.
 - Treat nonzero exit, timeout, login expiry, malformed JSONL, and rate limiting as typed provider errors.
 - Never log prompts, repository contents, credentials, Codex auth data, or raw tool outputs. Log request ID, duration, exit category, and response kind only.
@@ -592,7 +591,7 @@ Exit check: passed on August 28, 2026. Session `01m14g71c8zg1fpz5fe84n2by2` reco
 | Test | Expected result |
 |---|---|
 | Codex is signed out | Adapter reports a clear readiness error; TrueForge does not start a migration |
-| Codex exceeds 180 seconds | Child process is terminated and a typed timeout reaches TrueForge |
+| Codex exceeds 600 seconds | Child process is terminated and a typed timeout reaches TrueForge |
 | Codex returns malformed output | One retry, then a typed provider error |
 | Codex asks for an unavailable tool | Adapter rejects it; nothing executes |
 | Third concurrent Codex request | It waits behind the two-process limit |
@@ -686,7 +685,7 @@ Only add more tests for bugs actually found during integration.
 | Codex login expires | `/healthz` fails clearly; run `codex login` again before rehearsal and recording |
 | Codex subscription rate limit interrupts the flow | Keep prompts bounded, cap concurrency at two, preflight immediately before recording, and avoid unnecessary reruns |
 | Codex returns invalid tool-call JSON | Enforce JSON Schema, reject unknown tools, and retry once |
-| Provider turn is slow | Use a 180-second timeout, show progress in TrueForge, and prewarm one harmless turn |
+| Provider turn is slow | Use a 600-second timeout, show progress in TrueForge, and prewarm one harmless turn |
 | TrueForge looks like a thin wrapper | Keep all MCP, subagent, Daytona, GitHub, and approval events inside TrueForge and show them in the trace |
 | Judge lacks Codex access | README states the prerequisite clearly; include a complete three-minute recorded run and sample trace screenshots |
 | Latest Stripe release lookup fails during demo | Use a checked-in small v15 evidence fixture with source URLs and clearly label offline mode |

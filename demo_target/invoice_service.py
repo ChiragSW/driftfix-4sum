@@ -1,4 +1,4 @@
-"""Stripe v14 code intentionally kept for the migration demonstration."""
+"""Intentionally outdated Stripe v14 code for the migration demo."""
 
 import stripe
 

@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 
 MODEL_ID = "codex-subscription"
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "codex_turn.schema.json"
-DEFAULT_TIMEOUT_SECONDS = 180.0
+DEFAULT_TIMEOUT_SECONDS = 600.0
 AUTH_CHECK_TIMEOUT_SECONDS = 5.0
 DEFAULT_MAX_CONCURRENCY = 2
 MAX_PROMPT_CHARACTERS = 100_000
