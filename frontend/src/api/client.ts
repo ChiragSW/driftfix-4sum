@@ -17,5 +17,10 @@ export const apiClient = {
   async getHealth(): Promise<any> {
     const res = await axios.get(`${API_BASE}/health`);
     return res.data;
+  },
+
+  async detectStripeVersion(target: string): Promise<{ detected_version: string; source: string }> {
+    const res = await axios.post(`${API_BASE}/detect-version`, { target });
+    return res.data;
   }
 };
