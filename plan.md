@@ -569,9 +569,9 @@ Exit check: passed on August 27, 2026. Inspector received structured MCP output;
 - [x] Run the full migration in a fresh session.
 - [x] Create a branch and draft PR from the result.
 - [x] Verify Deny leaves the PR unmerged.
-- [ ] Verify Allow merges only after tests pass.
+- [x] Verify Allow merges only after tests pass.
 
-Exit check: one uninterrupted TrueForge session completes the whole judge story, and its trace proves TrueForge performed every tool, sandbox, delegation, and approval step.
+Exit check: passed on August 28, 2026. Session `01m14g71c8zg1fpz5fe84n2by2` recorded MCP evidence, both subagents, and Daytona's `7 passed -> 7 failed -> 7 passed` larger-fixture run. Session `01m14gz3tg1kpbhapxpd2yxbaz` held the merge until Allow, then merged PR #1 as `7f29dbf` after Qodo reported zero bugs.
 
 ### Phase 5: quality and submission - August 29 to 30
 
