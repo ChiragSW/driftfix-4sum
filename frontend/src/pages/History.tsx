@@ -50,7 +50,7 @@ export const History: React.FC<Props> = ({ history, onClear }) => {
                   <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{entry.repo_name}</div>
                   <div className="flex items-center gap-2">
                     <StatusBadge status={entry.old_status as any} /> 
-                    <span className="text-muted">-></span> 
+                    <span className="text-muted">{' -> '}</span> 
                     <StatusBadge status={entry.new_status as any} />
                   </div>
                 </div>
