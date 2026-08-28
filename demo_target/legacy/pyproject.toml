@@ -3,10 +3,10 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "driftfix-demo-target"
+name = "driftfix-legacy-demo-target"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = ["stripe==15.6.0"]
+dependencies = ["stripe==14.3.0"]
 
 [project.optional-dependencies]
 dev = ["pytest"]
@@ -16,4 +16,3 @@ py-modules = ["customer_service", "invoice_service"]
 
 [tool.pytest.ini_options]
 testpaths = ["."]
-norecursedirs = ["legacy"]
