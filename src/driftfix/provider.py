@@ -12,7 +12,12 @@ from pathlib import Path
 from shutil import which
 from typing import Any, Literal
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
@@ -30,6 +35,13 @@ RETRYABLE_OUTPUT_ERRORS = {
 }
 
 app = FastAPI(title="DriftFix Codex Provider", version="0.1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 logger = logging.getLogger("driftfix.provider")
 
 
