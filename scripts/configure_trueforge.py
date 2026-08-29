@@ -48,6 +48,11 @@ def _agent_manifest() -> dict[str, object]:
             {
                 "name": "github",
                 "enable_tools": ["@all"],
+                "preload_tools": [
+                    "create_branch",
+                    "push_files",
+                    "create_pull_request",
+                ],
                 "require_approval_for_tools": ["merge_pull_request"],
                 "preload": False,
             },
