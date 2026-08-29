@@ -5,6 +5,7 @@ import { MigrationAnalyzer } from './components/MigrationAnalyzer';
 import { CodeScanner } from './components/CodeScanner';
 import { SandboxRunner } from './components/SandboxRunner';
 import { CodexPlayground } from './components/CodexPlayground';
+import { KeyboardShortcutHint } from './components/KeyboardShortcutHint';
 import { TrueForgeWorkflow } from './components/TrueForgeWorkflow';
 
 export const App: React.FC = () => {
@@ -23,6 +24,7 @@ export const App: React.FC = () => {
         {activeTab === 'sandbox' && <SandboxRunner />}
         {activeTab === 'codex' && <CodexPlayground />}
         {activeTab === 'trueforge' && <TrueForgeWorkflow />}
+      <KeyboardShortcutHint setActiveTab={setActiveTab} />
       </main>
 
       {/* Footer */}
