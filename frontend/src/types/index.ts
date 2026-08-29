@@ -21,6 +21,22 @@ export interface MigrationReport {
   warnings: string[];
 }
 
+export interface PullRequestReport {
+  repository: string;
+  number: number;
+  title: string;
+  url: string;
+  state: 'open' | 'merged';
+  draft: boolean;
+  author: string;
+  head_branch: string;
+  base_branch: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+  merged_at: string | null;
+}
+
 export interface ProviderHealth {
   status: 'ok' | 'unavailable';
   codex_installed: boolean;

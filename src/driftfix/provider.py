@@ -4,22 +4,26 @@ import asyncio
 import json
 import logging
 import os
+import re
 import tempfile
 import time
 import uuid
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from shutil import which
 from typing import Any, Literal
 
+import httpx
 from dotenv import load_dotenv
-
-load_dotenv()
-
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import BaseModel, Field, ValidationError, model_validator
+from pydantic import BaseModel, Field, HttpUrl, ValidationError, model_validator
+
+from .schemas import PullRequestReport
+
+load_dotenv()
 
 MODEL_ID = "codex-subscription"
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "codex_turn.schema.json"
@@ -28,6 +32,8 @@ STREAM_KEEPALIVE_SECONDS = 15.0
 AUTH_CHECK_TIMEOUT_SECONDS = 5.0
 DEFAULT_MAX_CONCURRENCY = 2
 MAX_PROMPT_CHARACTERS = 100_000
+DEFAULT_REPORT_REPOSITORY = "ChiragSW/driftfix-4sum"
+REPORT_REPOSITORY_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 RETRYABLE_OUTPUT_ERRORS = {
     "codex_invalid_jsonl",
     "codex_invalid_output",
@@ -105,6 +111,29 @@ class CodexTurn(BaseModel):
         for call in self.calls:
             call.parsed_arguments()
         return self
+
+
+class _GitHubUser(BaseModel):
+    login: str = Field(min_length=1)
+
+
+class _GitHubBranch(BaseModel):
+    ref: str = Field(min_length=1)
+
+
+class _GitHubPullRequest(BaseModel):
+    number: int = Field(gt=0)
+    title: str = Field(min_length=1)
+    html_url: HttpUrl
+    state: Literal["open", "closed"]
+    draft: bool = False
+    body: str | None = None
+    user: _GitHubUser
+    head: _GitHubBranch
+    base: _GitHubBranch
+    created_at: datetime
+    updated_at: datetime
+    merged_at: datetime | None = None
 
 
 @dataclass(frozen=True)
@@ -236,6 +265,92 @@ def get_analyze_upgrade(current_version: str = "14.3.0"):
                 "Automated fixers may skip complex nested dictionary destructuring."
             ]
         }
+
+
+def list_pull_request_reports(
+    *, client: httpx.Client | None = None
+) -> list[PullRequestReport]:
+    repository = os.getenv(
+        "DRIFTFIX_GITHUB_REPOSITORY", DEFAULT_REPORT_REPOSITORY
+    ).strip()
+    if not REPORT_REPOSITORY_PATTERN.fullmatch(repository):
+        raise ProviderError(
+            500,
+            "invalid_report_repository",
+            "DRIFTFIX_GITHUB_REPOSITORY must use the owner/repository format.",
+        )
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "driftfix/0.1",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if token := os.getenv("GITHUB_TOKEN"):
+        headers["Authorization"] = f"Bearer {token}"
+
+    owns_client = client is None
+    client = client or httpx.Client(
+        timeout=httpx.Timeout(10.0, connect=5.0), follow_redirects=False
+    )
+    try:
+        response = client.get(
+            f"https://api.github.com/repos/{repository}/pulls",
+            headers=headers,
+            params={"state": "all", "per_page": 100},
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if not isinstance(payload, list):
+            raise ValueError("pull request response must be a list")
+    except (httpx.HTTPError, ValueError) as exc:
+        raise ProviderError(
+            502,
+            "github_reports_unavailable",
+            "GitHub pull request reports are unavailable.",
+        ) from exc
+    finally:
+        if owns_client:
+            client.close()
+
+    reports: list[PullRequestReport] = []
+    # ponytail: the newest 100 PRs cover this demo; add Link-header pagination if needed.
+    for item in payload:
+        try:
+            pull_request = _GitHubPullRequest.model_validate(item)
+        except ValidationError:
+            continue
+        if pull_request.state == "closed" and pull_request.merged_at is None:
+            continue
+        reports.append(
+            PullRequestReport(
+                repository=repository,
+                number=pull_request.number,
+                title=pull_request.title,
+                url=pull_request.html_url,
+                state="merged" if pull_request.merged_at else "open",
+                draft=pull_request.draft,
+                author=pull_request.user.login,
+                head_branch=pull_request.head.ref,
+                base_branch=pull_request.base.ref,
+                body=pull_request.body or "",
+                created_at=pull_request.created_at,
+                updated_at=pull_request.updated_at,
+                merged_at=pull_request.merged_at,
+            )
+        )
+    return reports
+
+
+@app.get("/api/pull-reports", response_model=list[PullRequestReport])
+def get_pull_request_reports(
+    state: Literal["all", "open", "merged"] = "all",
+) -> list[PullRequestReport]:
+    reports = list_pull_request_reports()
+    return (
+        reports
+        if state == "all"
+        else [report for report in reports if report.state == state]
+    )
 
 
 @app.post("/v1/chat/completions", response_model=None)

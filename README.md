@@ -69,10 +69,11 @@ Start the provider:
 
 ```powershell
 $env:CODEX_PROVIDER_TIMEOUT_SECONDS = "600"
+$env:DRIFTFIX_GITHUB_REPOSITORY = "ChiragSW/driftfix-4sum"
 python -m uvicorn driftfix.provider:app --app-dir src --host 127.0.0.1 --port 8765
 ```
 
-Set the variable in the same terminal before starting the provider. Restart the provider after changing it.
+The repository setting drives the frontend's open and merged pull-request reports. `GITHUB_TOKEN` is optional for public repositories and remains server-side. Set variables in the same terminal before starting the provider, then restart it after changing them.
 Run only one provider process on port `8765`; streaming requests send keepalives while Codex works.
 
 Start TrueForge in another terminal:

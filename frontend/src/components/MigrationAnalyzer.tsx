@@ -8,6 +8,7 @@ export const MigrationAnalyzer: React.FC = () => {
   const [report, setReport] = useState<MigrationReport | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [activeWorkflowNode, setActiveWorkflowNode] = useState<number>(-1);
+  const [versionError, setVersionError] = useState<string | null>(null);
 
   const loadReleaseData = async () => {
     const rel = await ApiService.getLatestRelease();
@@ -19,6 +20,14 @@ export const MigrationAnalyzer: React.FC = () => {
   }, []);
 
   const handleAnalyze = async () => {
+    const normalizedVersion = currentVersion.trim();
+    if (!/^\d+\.\d+\.\d+$/.test(normalizedVersion)) {
+      setVersionError('Enter a semantic version such as 14.3.0.');
+      return;
+    }
+
+    setVersionError(null);
+    setCurrentVersion(normalizedVersion);
     setLoading(true);
     setReport(null);
     setActiveWorkflowNode(0);
@@ -28,9 +37,12 @@ export const MigrationAnalyzer: React.FC = () => {
       await new Promise(r => setTimeout(r, 200));
     }
 
-    const res = await ApiService.analyzeUpgrade(currentVersion);
-    setReport(res);
-    setLoading(false);
+    try {
+      const res = await ApiService.analyzeUpgrade(normalizedVersion);
+      setReport(res);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const workflowNodes = [
@@ -40,6 +52,21 @@ export const MigrationAnalyzer: React.FC = () => {
     { id: 'extract_changes', label: 'extract_changes' },
     { id: 'build_report', label: 'build_report' }
   ];
+
+  const reportStatus = report ? {
+    upgrade_available: {
+      label: 'UPGRADE AVAILABLE',
+      className: 'text-[#d3bbff] bg-[#8957e5]/15 border-[#8957e5]/40'
+    },
+    up_to_date: {
+      label: 'UP TO DATE',
+      className: 'text-[#7bdb80] bg-[#7bdb80]/15 border-[#7bdb80]/30'
+    },
+    source_unavailable: {
+      label: 'SOURCE UNAVAILABLE',
+      className: 'text-[#ffb4ac] bg-[#da3633]/15 border-[#da3633]/40'
+    }
+  }[report.status] : null;
 
   return (
     <div className="w-full flex flex-col gap-6 animate-fadeIn">
@@ -85,9 +112,19 @@ export const MigrationAnalyzer: React.FC = () => {
             <input
               type="text"
               value={currentVersion}
-              onChange={(e) => setCurrentVersion(e.target.value)}
+              onChange={(e) => {
+                setCurrentVersion(e.target.value);
+                setVersionError(null);
+              }}
+              aria-invalid={versionError !== null}
+              aria-describedby={versionError ? 'version-error' : undefined}
               className="bg-[#10141a] border border-[#30363d] text-[#dfe2eb] font-mono text-base p-2.5 rounded focus:border-[#8957e5] focus:ring-1 focus:ring-[#8957e5] outline-none w-full"
             />
+            {versionError && (
+              <p id="version-error" role="alert" className="text-xs text-[#ffb4ac]">
+                {versionError}
+              </p>
+            )}
             <div className="flex gap-2 flex-wrap">
               {['14.3.0', '15.6.0', '13.0.0'].map((ver) => (
                 <button
@@ -153,12 +190,19 @@ export const MigrationAnalyzer: React.FC = () => {
         <div className="bg-[#181c22] border border-[#30363d] rounded flex flex-col animate-fadeIn overflow-hidden">
           <div className="border-b border-[#30363d] bg-[#1c2026] px-6 py-3 flex justify-between items-center">
             <h3 className="text-xs font-semibold tracking-wider text-[#dfe2eb]">MIGRATION REPORT</h3>
-            <span className="font-mono text-xs text-[#7bdb80] bg-[#7bdb80]/15 border border-[#7bdb80]/30 px-2.5 py-0.5 rounded font-semibold">
-              UPGRADE AVAILABLE: {report.current_version} → {report.target_version || '15.6.0'}
+            <span className={`font-mono text-xs border px-2.5 py-0.5 rounded font-semibold ${reportStatus?.className}`}>
+              {reportStatus?.label}: {report.current_version}{report.target_version ? ` → ${report.target_version}` : ''}
             </span>
           </div>
 
           <div className="p-6 flex flex-col gap-6">
+            {report.breaking_changes.length === 0 && (
+              <p className="text-sm text-[#8b949e]">
+                {report.status === 'up_to_date'
+                  ? 'No major-version migration is required.'
+                  : 'No breaking changes could be loaded from official guidance.'}
+              </p>
+            )}
             {report.breaking_changes.map((bc, idx) => (
               <div key={idx} className="flex flex-col gap-4 border-b border-[#30363d]/60 pb-6 last:border-0 last:pb-0">
                 <div className="flex flex-col gap-2">
@@ -206,16 +250,17 @@ export const MigrationAnalyzer: React.FC = () => {
       )}
 
       {/* Workflow Warnings Panel */}
-      <div className="bg-[#93000a]/15 border border-[#da3633]/40 rounded p-5 flex gap-4 items-start">
-        <span className="material-symbols-outlined text-[#ffb4ab] text-2xl shrink-0 mt-0.5">error</span>
-        <div className="flex flex-col gap-2">
-          <h4 className="text-base font-bold text-[#ffb4ab]">Workflow Warnings</h4>
-          <ul className="text-xs text-[#dfe2eb] list-disc pl-4 flex flex-col gap-1 leading-relaxed">
-            <li>Manual verification required for dynamic dict comprehensions handling Stripe objects.</li>
-            <li>Automated fixers may skip complex nested dictionary destructuring.</li>
-          </ul>
+      {report && report.warnings.length > 0 && (
+        <div className="bg-[#93000a]/15 border border-[#da3633]/40 rounded p-5 flex gap-4 items-start">
+          <span className="material-symbols-outlined text-[#ffb4ab] text-2xl shrink-0 mt-0.5">error</span>
+          <div className="flex flex-col gap-2">
+            <h4 className="text-base font-bold text-[#ffb4ab]">Workflow Warnings</h4>
+            <ul className="text-xs text-[#dfe2eb] list-disc pl-4 flex flex-col gap-1 leading-relaxed">
+              {report.warnings.map((warning) => <li key={warning}>{warning}</li>)}
+            </ul>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

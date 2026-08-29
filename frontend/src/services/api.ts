@@ -1,31 +1,21 @@
-import { ProviderHealth, ProviderModel, StripeRelease, MigrationReport } from '../types';
+import { ProviderHealth, ProviderModel, StripeRelease, MigrationReport, PullRequestReport } from '../types';
 import { SAMPLE_LATEST_RELEASE, SAMPLE_MIGRATION_REPORT } from '../data/mockData';
 
 export class ApiService {
-  private static isLiveMode = true;
-
-  public static setLiveMode(enabled: boolean) {
-    this.isLiveMode = enabled;
-  }
-
-  public static getLiveMode(): boolean {
-    return this.isLiveMode;
-  }
-
   public static async getProviderHealth(): Promise<ProviderHealth> {
     try {
       const res = await fetch('/api/provider/healthz');
       const data = await res.json();
       return {
-        status: data.status || 'ok',
-        codex_installed: data.codex_installed ?? true,
-        authentication: data.authentication === 'signed_in' ? 'Ready' : (data.authentication || 'Ready')
+        status: res.ok && data.status === 'ok' ? 'ok' : 'unavailable',
+        codex_installed: Boolean(data.codex_installed),
+        authentication: data.authentication === 'signed_in' ? 'Ready' : (data.authentication || 'unavailable')
       };
     } catch {
       return {
-        status: 'ok',
-        codex_installed: true,
-        authentication: 'Ready'
+        status: 'unavailable',
+        codex_installed: false,
+        authentication: 'unavailable'
       };
     }
   }
@@ -64,7 +54,11 @@ export class ApiService {
         const releases = await res.json();
         const valid = releases.filter((r: any) => !r.draft && !r.prerelease && /^v?\d+\.\d+\.\d+$/.test(r.tag_name));
         if (valid.length > 0) {
-          const top = valid[0];
+          const top = valid.sort((a: any, b: any) => {
+            const left = a.tag_name.replace(/^v/, '').split('.').map(Number);
+            const right = b.tag_name.replace(/^v/, '').split('.').map(Number);
+            return right[0] - left[0] || right[1] - left[1] || right[2] - left[2];
+          })[0];
           const ver = top.tag_name.replace(/^v/, '');
           const major = parseInt(ver.split('.')[0], 10);
           return {
@@ -114,57 +108,30 @@ export class ApiService {
     };
   }
 
-  public static async sendChatMessage(prompt: string, tools: any[] = []): Promise<any> {
-    try {
-      const res = await fetch('/api/provider/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: "codex-subscription",
-          messages: [{ role: "user", content: prompt }],
-          tools: tools.length > 0 ? tools : undefined,
-          stream: false
-        })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
-    } catch (err: any) {
-      // Provide valid mock JSON matching OpenAI schema
-      return {
-        id: "chatcmpl_mock_" + Math.random().toString(36).substring(2, 9),
-        object: "chat.completion",
-        created: Math.floor(Date.now() / 1000),
-        model: "codex-subscription",
-        choices: [
-          {
-            index: 0,
-            message: {
-              role: "assistant",
-              content: null,
-              tool_calls: [
-                {
-                  id: "call_" + Math.random().toString(36).substring(2, 9),
-                  type: "function",
-                  function: {
-                    name: "patch_file",
-                    arguments: JSON.stringify({
-                      file: "customer_service.py",
-                      status: "AST migration complete",
-                      diff: "Added .to_dict() conversions for dictionary method calls"
-                    })
-                  }
-                }
-              ]
-            },
-            finish_reason: "tool_calls"
-          }
-        ],
-        usage: {
-          prompt_tokens: 42,
-          completion_tokens: 18,
-          total_tokens: 60
-        }
-      };
-    }
+  public static async getPullRequestReports(): Promise<PullRequestReport[]> {
+    const res = await fetch('/api/provider/api/pull-reports?state=all');
+    if (!res.ok) throw new Error(`Unable to load pull request reports (HTTP ${res.status})`);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('Pull request report response is invalid');
+    return data;
+  }
+
+  public static async sendChatMessage(prompt: string, tools: unknown[] = [], systemPrompt = ''): Promise<unknown> {
+    const messages = [
+      ...(systemPrompt.trim() ? [{ role: 'system', content: systemPrompt.trim() }] : []),
+      { role: 'user', content: prompt }
+    ];
+    const res = await fetch('/api/provider/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'codex-subscription',
+        messages,
+        tools: tools.length > 0 ? tools : undefined,
+        stream: false
+      })
+    });
+    if (!res.ok) throw new Error(`Provider request failed (HTTP ${res.status})`);
+    return await res.json();
   }
 }

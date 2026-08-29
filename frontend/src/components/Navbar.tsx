@@ -16,8 +16,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <header className="bg-[#10141a] border-b border-[#30363d] sticky top-0 z-50 w-full h-16 shrink-0">
-      <div className="flex justify-between items-center w-full px-6 h-full max-w-[1600px] mx-auto">
+    <header className="bg-[#10141a] border-b border-[#30363d] sticky top-0 z-50 w-full shrink-0">
+      <div className="flex justify-between items-center w-full px-6 h-16 max-w-[1600px] mx-auto">
         <div className="flex items-center gap-8">
           {/* Logo */}
           <button

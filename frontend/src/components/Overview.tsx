@@ -1,10 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { ApiService } from '../services/api';
+import { PullRequestReport } from '../types';
 
 interface OverviewProps {
   setActiveTab: (tab: string) => void;
 }
 
 export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
+  const [pullReports, setPullReports] = useState<PullRequestReport[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportsError, setReportsError] = useState<string | null>(null);
+
+  const loadPullReports = async () => {
+    setReportsLoading(true);
+    setReportsError(null);
+    try {
+      setPullReports(await ApiService.getPullRequestReports());
+    } catch (error) {
+      setReportsError(error instanceof Error ? error.message : 'Unable to load pull request reports');
+    } finally {
+      setReportsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadPullReports();
+  }, []);
+
+  const openReports = pullReports.filter((report) => report.state === 'open');
+  const mergedReports = pullReports.filter((report) => report.state === 'merged');
+
   return (
     <div className="w-full flex flex-col gap-8 animate-fadeIn">
       {/* Hero Section */}
@@ -115,13 +140,103 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
                 <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">Outcome</span>
               </div>
               <span className="bg-[#8957e5]/20 text-[#d3bbff] font-mono text-[10px] font-bold px-2 py-0.5 border border-[#8957e5]/40 rounded">
-                READY
+                LIVE
               </span>
             </div>
-            <p className="text-base font-bold text-[#dfe2eb]">Draft PR: #1</p>
-            <p className="font-mono text-xs text-[#8b949e] mt-1">(Merged after approval)</p>
+            <p className="text-base font-bold text-[#dfe2eb]">
+              {reportsLoading ? 'Loading PRs…' : reportsError ? 'PR data unavailable' : `${openReports.length} open · ${mergedReports.length} merged`}
+            </p>
+            <p className="font-mono text-xs text-[#8b949e] mt-1">GitHub pull request reports</p>
           </div>
         </div>
+      </section>
+
+      {/* Live reports stored in open and merged pull request bodies */}
+      <section aria-labelledby="pull-request-reports">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 id="pull-request-reports" className="text-xl md:text-2xl font-bold text-[#dfe2eb]">
+              Pull Request Reports
+            </h2>
+            <p className="text-xs text-[#8b949e] mt-1">
+              Live report bodies from open and merged GitHub pull requests.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void loadPullReports()}
+            disabled={reportsLoading}
+            className="self-start bg-[#181c22] border border-[#30363d] text-[#dfe2eb] hover:border-[#8b949e] disabled:opacity-50 text-xs font-semibold px-4 py-2 rounded transition flex items-center gap-2"
+          >
+            <span className={`material-symbols-outlined text-[16px] ${reportsLoading ? 'animate-spin' : ''}`}>refresh</span>
+            Refresh
+          </button>
+        </div>
+
+        {reportsLoading ? (
+          <div className="bg-[#181c22] border border-[#30363d] rounded p-6 text-sm text-[#8b949e]">
+            Loading pull request reports…
+          </div>
+        ) : reportsError ? (
+          <div role="alert" className="bg-[#93000a]/15 border border-[#da3633]/40 rounded p-5 text-sm text-[#ffb4ac]">
+            {reportsError}. Start the provider backend and check its GitHub repository configuration.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+            {([
+              { state: 'open' as const, label: 'Open', reports: openReports },
+              { state: 'merged' as const, label: 'Merged', reports: mergedReports }
+            ]).map((group) => (
+              <div key={group.state} className="bg-[#181c22] border border-[#30363d] rounded p-5">
+                <h3 className="text-sm font-bold text-[#dfe2eb] mb-4 flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${group.state === 'open' ? 'bg-[#7bdb80]' : 'bg-[#8957e5]'}`}></span>
+                  {group.label} reports
+                  <span className="font-mono text-xs text-[#8b949e]">({group.reports.length})</span>
+                </h3>
+
+                <div className="flex flex-col gap-3">
+                  {group.reports.length === 0 ? (
+                    <p className="text-xs text-[#8b949e] bg-[#10141a] border border-[#30363d] rounded p-4">
+                      No {group.label.toLowerCase()} pull request reports found.
+                    </p>
+                  ) : group.reports.map((report) => (
+                    <article key={report.number} className="bg-[#10141a] border border-[#30363d] rounded p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <a
+                            href={report.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sm font-bold text-[#dfe2eb] hover:text-[#d3bbff] transition"
+                          >
+                            #{report.number} {report.title}
+                          </a>
+                          <p className="font-mono text-[11px] text-[#8b949e] mt-1 break-all">
+                            {report.head_branch} → {report.base_branch} · @{report.author}
+                          </p>
+                        </div>
+                        {report.draft && (
+                          <span className="shrink-0 text-[10px] font-mono font-bold uppercase text-[#d3bbff] border border-[#8957e5]/50 rounded px-2 py-0.5">
+                            Draft
+                          </span>
+                        )}
+                      </div>
+
+                      <details className="mt-3 group">
+                        <summary className="cursor-pointer text-xs font-semibold text-[#d3bbff] hover:underline">
+                          View report
+                        </summary>
+                        <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words bg-[#181c22] border border-[#30363d] rounded p-3 text-[11px] leading-relaxed text-[#dfe2eb] font-mono">
+                          {report.body || 'This pull request has no report body.'}
+                        </pre>
+                      </details>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

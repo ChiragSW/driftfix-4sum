@@ -93,7 +93,7 @@ export const TrueForgeWorkflow: React.FC = () => {
             TrueForge Orchestration &amp; Human Gate
           </h1>
           <div className="text-xs text-[#8b949e]">
-            Full execution trace of session 01m14g71c8zg1fpz5fe84n2by2 and human merge checkpoint.
+            Recorded execution trace of session 01m14g71c8zg1fpz5fe84n2by2. The checkpoint controls replay its outcome locally.
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export const TrueForgeWorkflow: React.FC = () => {
           className="bg-[#181c22] text-[#dfe2eb] text-xs font-semibold px-4 py-2 border border-[#30363d] rounded hover:bg-[#262a31] hover:border-[#8b949e] transition flex items-center gap-2 uppercase cursor-pointer"
         >
           <span className="material-symbols-outlined text-[18px]">restart_alt</span>
-          Reset Checkpoint
+          Reset Replay
         </button>
       </div>
 
@@ -115,7 +115,7 @@ export const TrueForgeWorkflow: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h3 className="text-base font-bold text-[#dfe2eb]">Human Approval Policy Checkpoint</h3>
+                <h3 className="text-base font-bold text-[#dfe2eb]">Recorded Human Approval Checkpoint</h3>
                 <span className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-bold uppercase ${
                   approvalStatus === 'pending'
                     ? 'bg-[#da3633]/20 text-[#ffb4ac] border border-[#da3633] animate-pulse'
@@ -140,14 +140,14 @@ export const TrueForgeWorkflow: React.FC = () => {
                 className="bg-[#007124] text-white text-xs font-bold px-5 py-2.5 rounded hover:bg-[#005319] transition flex items-center gap-2 cursor-pointer shadow-sm"
               >
                 <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                Allow &amp; Merge PR
+                Replay Allow Outcome
               </button>
               <button
                 onClick={() => setApprovalStatus('denied')}
                 className="bg-[#10141a] text-[#ffb4ac] border border-[#da3633] text-xs font-bold px-4 py-2.5 rounded hover:bg-[#da3633]/20 transition flex items-center gap-2 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">cancel</span>
-                Deny
+                Replay Deny Outcome
               </button>
             </div>
           ) : (
@@ -155,7 +155,7 @@ export const TrueForgeWorkflow: React.FC = () => {
               {approvalStatus === 'allowed' ? (
                 <span className="text-[#7bdb80] flex items-center gap-1.5 bg-[#7bdb80]/15 px-3 py-1.5 rounded border border-[#7bdb80]/30">
                   <span className="material-symbols-outlined text-[18px]">call_merge</span>
-                  Merged as commit 7f29dbf
+                  Recorded merge: commit 7f29dbf
                 </span>
               ) : (
                 <span className="text-[#ffb4ac] flex items-center gap-1.5 bg-[#da3633]/15 px-3 py-1.5 rounded border border-[#da3633]/30">

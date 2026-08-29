@@ -10,28 +10,8 @@ export const CodexPlayground: React.FC = () => {
     'Upgrade demo_target to use latest Stripe API patterns, applying SKILL rules 1-4.'
   );
   const [showTools, setShowTools] = useState<boolean>(false);
-  const [response, setResponse] = useState<any>({
-    id: "cdx-resp-892a1",
-    object: "chat.completion",
-    choices: [
-      {
-        message: {
-          role: "assistant",
-          content: null,
-          tool_calls: [
-            {
-              id: "call_9a8b7",
-              type: "function",
-              function: {
-                name: "patch_file",
-                arguments: "{\"file\": \"customer_service.py\", \"diff\": \"to_dict() conversions\"}"
-              }
-            }
-          ]
-        }
-      }
-    ]
-  });
+  const [response, setResponse] = useState<unknown>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchStatus = async () => {
@@ -57,10 +37,19 @@ export const CodexPlayground: React.FC = () => {
 
   const handleSend = async () => {
     setLoading(true);
-    const res = await ApiService.sendChatMessage(prompt, sampleTools);
-    setResponse(res);
-    setLoading(false);
+    setRequestError(null);
+    try {
+      const res = await ApiService.sendChatMessage(prompt, sampleTools, systemPrompt);
+      setResponse(res);
+    } catch (error) {
+      setResponse(null);
+      setRequestError(error instanceof Error ? error.message : 'Provider request failed');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const providerReady = health?.status === 'ok';
 
   return (
     <div className="w-full flex flex-col gap-6 animate-fadeIn">
@@ -85,9 +74,9 @@ export const CodexPlayground: React.FC = () => {
           </div>
           <div className="w-px h-4 bg-[#30363d] hidden sm:block"></div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#7bdb80]"></span>
-            <span className="text-xs font-semibold text-[#7bdb80] uppercase tracking-wider">
-              {health?.authentication || 'Ready'}
+            <span className={`w-2 h-2 rounded-full ${providerReady ? 'bg-[#7bdb80]' : 'bg-[#da3633]'}`}></span>
+            <span className={`text-xs font-semibold uppercase tracking-wider ${providerReady ? 'text-[#7bdb80]' : 'text-[#ffb4ac]'}`}>
+              {health?.authentication || 'Checking…'}
             </span>
           </div>
         </div>
@@ -150,12 +139,14 @@ export const CodexPlayground: React.FC = () => {
           <div className="bg-[#181c22] border border-[#30363d] rounded flex flex-col h-[520px] shadow-sm">
             <div className="border-b border-[#30363d] px-5 py-3.5 bg-[#1c2026] flex justify-between items-center">
               <span className="text-xs font-semibold uppercase tracking-wider text-[#dfe2eb]">Structured Response</span>
-              <span className="font-mono text-xs text-[#7bdb80] font-semibold">200 OK - 420ms</span>
+              <span className={`font-mono text-xs font-semibold ${requestError ? 'text-[#ffb4ac]' : response ? 'text-[#7bdb80]' : 'text-[#8b949e]'}`}>
+                {requestError ? 'REQUEST FAILED' : response ? '200 OK' : 'NOT RUN'}
+              </span>
             </div>
             <div className="p-4 flex-1 overflow-y-auto bg-[#10141a] m-3 border border-[#30363d] rounded font-mono text-xs leading-relaxed">
               <pre className="text-[#dfe2eb] whitespace-pre-wrap">
                 <code>
-                  {JSON.stringify(response, null, 2)}
+                  {requestError || (response ? JSON.stringify(response, null, 2) : 'Execute a request to inspect the live provider response.')}
                 </code>
               </pre>
             </div>
