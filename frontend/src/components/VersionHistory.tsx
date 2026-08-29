@@ -41,7 +41,7 @@ const STRIPE_RELEASE_HISTORY: ReleaseEntry[] = [
     url: 'https://github.com/stripe/stripe-python/releases/tag/v14.0.0'
   },
   {
-    version: '13.0.0', major: 13, label: 'Major Release',
+    version: '13.0.0', major: 13, label: 'Legacy Release',
     date: '2025-01-20',
     note: 'Type stubs added; stripe.api_key property deprecated in favour of StripeClient.',
     breaking: false,
@@ -51,48 +51,48 @@ const STRIPE_RELEASE_HISTORY: ReleaseEntry[] = [
 
 export const VersionHistory: React.FC = () => {
   return (
-    <section className="bg-slate-900/70 border border-slate-800 rounded-xl p-6">
-      <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-        <CalendarClock className="w-4 h-4 text-indigo-400" />
+    <section className="bg-surface-container-low border border-outline-variant rounded-xl p-6">
+      <h3 className="font-display text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
+        <CalendarClock className="w-4 h-4 text-primary" />
         Stripe Python SDK Version Timeline
       </h3>
 
-      <ol className="relative border-l border-slate-700 ml-3 space-y-6">
+      <ol className="relative border-l border-outline-variant ml-3 space-y-6">
         {STRIPE_RELEASE_HISTORY.map((rel) => (
           <li key={rel.version} className="pl-6 relative">
             {/* Dot */}
             <span className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full flex items-center justify-center ${
-              rel.breaking ? 'bg-amber-500/20 border border-amber-500' : 'bg-slate-800 border border-slate-600'
+              rel.breaking ? 'bg-tertiary-container/20 border border-tertiary' : 'bg-surface-container border border-outline-variant'
             }`}>
-              <GitCommit className={`w-2.5 h-2.5 ${rel.breaking ? 'text-amber-400' : 'text-slate-400'}`} />
+              <GitCommit className={`w-2.5 h-2.5 ${rel.breaking ? 'text-tertiary' : 'text-outline'}`} />
             </span>
 
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className="font-mono font-bold text-white text-sm">{rel.version}</span>
-              <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold border ${
+              <span className="font-mono font-bold text-on-surface text-sm">{rel.version}</span>
+              <span className={`text-[11px] font-mono px-2 py-0.5 rounded font-semibold border ${
                 rel.label === 'Latest Stable'
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                  ? 'bg-secondary-container/20 text-secondary border-secondary-container'
                   : rel.label === 'Demo Target'
-                  ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
-                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                  ? 'bg-primary-container/20 text-primary border-primary-container'
+                  : 'bg-surface-container text-outline border-outline-variant'
               }`}>
                 {rel.label}
               </span>
               {rel.breaking && (
-                <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded font-semibold bg-tertiary-container/20 text-tertiary border border-tertiary-container">
                   ⚠ Breaking
                 </span>
               )}
-              <span className="text-[11px] text-slate-500 font-mono">{rel.date}</span>
+              <span className="text-[11px] text-outline font-mono">{rel.date}</span>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed">{rel.note}</p>
+            <p className="font-mono text-xs text-on-surface-variant leading-relaxed">{rel.note}</p>
 
             <a
               href={rel.url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 font-mono mt-1"
+              className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline font-mono mt-1"
             >
               Release notes <ExternalLink className="w-3 h-3" />
             </a>

@@ -1,14 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Zap, 
-  Search, 
-  ExternalLink, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
-  ShieldCheck, 
-  RefreshCw
-} from 'lucide-react';
 import { ApiService } from '../services/api';
 import { StripeRelease, MigrationReport } from '../types';
 
@@ -33,9 +23,7 @@ export const MigrationAnalyzer: React.FC = () => {
     setReport(null);
     setActiveWorkflowNode(0);
 
-    // Simulate LangGraph step timings for clean visual inspection
-    const nodeSequence = [0, 1, 2, 3, 4];
-    for (const step of nodeSequence) {
+    for (let step = 0; step < 5; step++) {
       setActiveWorkflowNode(step);
       await new Promise(r => setTimeout(r, 200));
     }
@@ -46,236 +34,195 @@ export const MigrationAnalyzer: React.FC = () => {
   };
 
   const workflowNodes = [
-    { id: 'validate_request', label: '1. Validate Request', desc: 'Validates semantic version format' },
-    { id: 'fetch_latest_release', label: '2. Fetch Latest Release', desc: 'Scans official stripe/stripe-python GitHub releases' },
-    { id: 'fetch_guidance', label: '3. Fetch Guidance', desc: 'Retrieves CHANGELOG.md & Wiki migration guide' },
-    { id: 'extract_changes', label: '4. Extract Breaking Changes', desc: 'Parses Markdown headings and warning tags' },
-    { id: 'build_report', label: '5. Build Report', desc: 'Generates structured MigrationReport' }
+    { id: 'validate_request', label: 'validate_request' },
+    { id: 'fetch_latest_release', label: 'fetch_latest_release' },
+    { id: 'fetch_guidance', label: 'fetch_guidance' },
+    { id: 'extract_changes', label: 'extract_changes' },
+    { id: 'build_report', label: 'build_report' }
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Title / Description */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-        <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Zap className="w-5 h-5 text-indigo-400" />
-            Deterministic Stripe Migration MCP Analyzer
-          </h2>
-          <p className="text-xs text-slate-400">
-            Official read-only MCP tool backend backed by LangGraph 5-node deterministic workflow.
-          </p>
+    <div className="w-full flex flex-col gap-lg animate-fadeIn">
+      {/* Header matching Stitch Screen 3 */}
+      <header className="flex flex-col gap-sm border-b border-outline-variant pb-md">
+        <h1 className="font-display text-display text-on-surface">Deterministic Stripe Migration MCP Analyzer</h1>
+        <div className="flex items-center gap-sm font-code text-code text-secondary font-bold">
+          <span className="material-symbols-outlined text-[16px]">check_circle</span>
+          <span>Connected to official GitHub release data</span>
         </div>
-        <button
-          onClick={loadReleaseData}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Refresh Official Releases
-        </button>
-      </div>
+      </header>
 
-      {/* Release Banner & Inputs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Latest Release Card */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-            <span className="font-semibold text-slate-300 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              Latest Stable Stripe Release
+      {/* Configuration Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+        {/* Left Panel */}
+        <div className="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md">
+          <div className="flex justify-between items-start">
+            <h2 className="font-label-md text-label-md text-on-surface uppercase font-bold">Latest Stable Release</h2>
+            <span className="font-code text-code text-primary bg-primary-container/20 px-sm py-xs rounded font-bold">
+              Major {latestRelease?.major || 15}
             </span>
-            <span className="text-emerald-400 font-mono font-bold">Official GitHub</span>
           </div>
-          {latestRelease ? (
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold text-white font-mono">{latestRelease.version}</span>
-                <span className="text-xs text-slate-400">(Major {latestRelease.major})</span>
-              </div>
-              <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {new Date(latestRelease.published_at).toLocaleDateString()}
-                </span>
-                <a
-                  href={latestRelease.release_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium"
-                >
-                  View Tag <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-          ) : (
-            <div className="animate-pulse h-12 bg-slate-800 rounded mt-2"></div>
-          )}
+          <div className="font-headline-lg text-headline-lg text-on-surface font-bold">
+            {latestRelease?.version || '15.6.0'}
+          </div>
+          <a
+            href={latestRelease?.release_url || 'https://github.com/stripe/stripe-python/releases'}
+            target="_blank"
+            rel="noreferrer"
+            className="self-start font-label-md text-label-md border border-outline-variant text-on-surface hover:bg-surface-variant px-md py-sm rounded transition-colors flex items-center gap-sm"
+          >
+            <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+            View GitHub Release
+          </a>
         </div>
 
-        {/* Current Version Input Card */}
-        <div className="md:col-span-2 bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              Installed / Target Upgrade Version (e.g. demo_target v14.3.0):
-            </label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  value={currentVersion}
-                  onChange={(e) => setCurrentVersion(e.target.value)}
-                  placeholder="e.g. 14.3.0"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-indigo-500"
-                />
-              </div>
+        {/* Right Panel */}
+        <div className="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md">
+          <h2 className="font-label-md text-label-md text-on-surface uppercase font-bold">Target Upgrade</h2>
+          <div className="flex flex-col gap-sm">
+            <input
+              type="text"
+              value={currentVersion}
+              onChange={(e) => setCurrentVersion(e.target.value)}
+              className="bg-background border border-outline-variant text-on-surface font-code text-body-lg p-sm rounded focus:border-primary focus:ring-0 outline-none w-full"
+            />
+            <div className="flex gap-xs flex-wrap">
               <button
-                onClick={handleAnalyze}
-                disabled={loading}
-                className="flex items-center gap-2 px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold shadow-md shadow-indigo-600/30 transition"
+                onClick={() => setCurrentVersion('14.3.0')}
+                className="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface cursor-pointer"
               >
-                {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                Analyze Upgrade
+                14.3.0
+              </button>
+              <button
+                onClick={() => setCurrentVersion('15.6.0')}
+                className="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface cursor-pointer"
+              >
+                15.6.0
+              </button>
+              <button
+                onClick={() => setCurrentVersion('13.0.0')}
+                className="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface cursor-pointer"
+              >
+                13.0.0
               </button>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-xs text-slate-400 mt-2">
-            <span>Quick presets:</span>
-            <button onClick={() => setCurrentVersion('14.3.0')} className="text-indigo-400 hover:underline">14.3.0 (v14 Demo)</button>
-            <span>•</span>
-            <button onClick={() => setCurrentVersion('15.6.0')} className="text-indigo-400 hover:underline">15.6.0 (Current Major)</button>
-            <span>•</span>
-            <button onClick={() => setCurrentVersion('13.0.0')} className="text-indigo-400 hover:underline">13.0.0 (Legacy)</button>
-          </div>
+          <button
+            onClick={handleAnalyze}
+            disabled={loading}
+            className="self-end mt-auto font-label-md text-label-md bg-primary-container text-on-primary-container hover:bg-primary-fixed transition-colors px-md py-sm rounded flex items-center gap-sm cursor-pointer disabled:opacity-50 font-bold"
+          >
+            <span className="material-symbols-outlined text-[16px]">troubleshoot</span>
+            {loading ? 'Analyzing...' : 'Analyze Upgrade'}
+          </button>
         </div>
       </div>
 
-      {/* LangGraph Pipeline Visualizer */}
-      <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-          LangGraph Workflow Execution Pipeline
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+      {/* Pipeline Visualizer */}
+      <div className="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md overflow-x-auto">
+        <h3 className="font-label-md text-label-md text-on-surface uppercase font-bold">Pipeline Status</h3>
+        <div className="flex items-center min-w-max py-sm">
           {workflowNodes.map((node, idx) => {
-            const isActive = activeWorkflowNode === idx;
             const isCompleted = report !== null || activeWorkflowNode > idx;
+            const isCurrent = activeWorkflowNode === idx;
+
             return (
-              <div 
-                key={node.id}
-                className={`p-2.5 rounded-lg border text-xs transition-all ${
-                  isActive 
-                    ? 'bg-indigo-950/80 border-indigo-500 shadow-md shadow-indigo-500/20 text-white ring-1 ring-indigo-500'
-                    : isCompleted 
-                    ? 'bg-slate-900 border-emerald-900/50 text-slate-300'
-                    : 'bg-slate-950/50 border-slate-800/80 text-slate-500'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1 font-semibold">
-                  <span>{node.label}</span>
-                  {isCompleted && <CheckCircle className="w-3 h-3 text-emerald-400" />}
+              <React.Fragment key={node.id}>
+                <div className="flex items-center gap-xs">
+                  {isCompleted ? (
+                    <div className="h-6 w-6 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center">
+                      <span className="material-symbols-outlined text-secondary text-[14px]">check</span>
+                    </div>
+                  ) : isCurrent ? (
+                    <div className="h-6 w-6 rounded-full bg-primary/20 border border-primary flex items-center justify-center animate-pulse">
+                      <span className="material-symbols-outlined text-primary text-[14px]">sync</span>
+                    </div>
+                  ) : (
+                    <div className="h-6 w-6 rounded-full bg-surface-variant border border-outline-variant flex items-center justify-center">
+                      <span className="material-symbols-outlined text-outline-variant text-[14px]">pending</span>
+                    </div>
+                  )}
+                  <span className={`font-code text-body-sm ${isCompleted || isCurrent ? 'text-on-surface font-bold' : 'text-on-surface-variant opacity-60'}`}>
+                    {node.label}
+                  </span>
                 </div>
-                <p className="text-[10px] text-slate-400 leading-tight">{node.desc}</p>
-              </div>
+                {idx < workflowNodes.length - 1 && (
+                  <div className={`w-8 h-px mx-sm ${isCompleted ? 'bg-secondary' : 'bg-outline-variant'}`}></div>
+                )}
+              </React.Fragment>
             );
           })}
         </div>
       </div>
 
-      {/* Migration Report Output */}
+      {/* Migration Report */}
       {report && (
-        <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-6 space-y-6 shadow-xl animate-fadeIn">
-          {/* Header Status */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-            <div className="flex items-center gap-3">
-              <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                report.status === 'upgrade_available'
-                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                  : report.status === 'up_to_date'
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-red-500/10 text-red-400 border border-red-500/30'
-              }`}>
-                {report.status.replace('_', ' ')}
-              </div>
-              <div className="text-sm font-mono text-slate-300">
-                Current: <span className="text-white font-bold">{report.current_version}</span> → Target: <span className="text-emerald-400 font-bold">{report.target_version || 'N/A'}</span>
-              </div>
-            </div>
-
-            <div className="text-xs text-slate-400 font-mono">
-              MCP tool: <code className="text-indigo-300">analyze_stripe_python_upgrade</code>
-            </div>
+        <div className="bg-surface-container-low border border-outline-variant rounded flex flex-col animate-fadeIn">
+          <div className="border-b border-outline-variant bg-surface-variant p-sm flex justify-between items-center">
+            <h3 className="font-label-md text-label-md text-on-surface font-bold">MIGRATION REPORT</h3>
+            <span className="font-code text-body-sm text-secondary bg-secondary-container/20 border border-secondary px-sm py-xs rounded font-bold">
+              UPGRADE AVAILABLE: {report.current_version} → {report.target_version || '15.6.0'}
+            </span>
           </div>
 
-          {/* Breaking Changes */}
-          <div>
-            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
-              Sourced Breaking Changes & Migration Guides ({report.breaking_changes.length})
-            </h3>
-            
-            {report.breaking_changes.length === 0 ? (
-              <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-400">
-                No breaking changes detected for this version jump.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {report.breaking_changes.map((bc, idx) => (
-                  <div 
-                    key={idx}
-                    className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 hover:border-slate-700 transition"
+          <div className="p-md flex flex-col gap-lg">
+            {report.breaking_changes.map((bc, idx) => (
+              <div key={idx} className="flex flex-col gap-md border-b border-outline-variant/60 pb-md last:border-0 last:pb-0">
+                <div className="flex flex-col gap-xs">
+                  <h4 className="font-headline-md text-headline-md text-error flex items-center gap-sm font-bold">
+                    <span className="material-symbols-outlined">warning</span>
+                    Breaking Change
+                  </h4>
+                  <p className="font-code text-body-lg text-on-surface bg-surface border border-outline-variant p-sm rounded border-l-4 border-l-error font-bold">
+                    {bc.title}
+                  </p>
+                  <p className="font-mono text-xs text-on-surface-variant mt-1">
+                    {bc.summary}
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-sm">
+                  <span className="font-label-md text-label-md text-on-surface-variant font-bold">OFFICIAL SOURCE:</span>
+                  <a
+                    href={bc.source_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-code text-body-sm text-primary hover:underline flex items-center gap-xs w-max"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                      <h4 className="text-sm font-semibold text-indigo-200">
-                        {bc.title}
-                      </h4>
-                      <a
-                        href={bc.source_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-mono bg-indigo-950/40 px-2 py-0.5 rounded border border-indigo-800/40"
-                      >
-                        Official Source <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed mb-3">
-                      {bc.summary}
-                    </p>
-                    
-                    {bc.search_hints.length > 0 && (
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[11px] font-semibold text-slate-400">Search hints (Impact Scout):</span>
-                        {bc.search_hints.map((hint, hIdx) => (
-                          <span 
-                            key={hIdx}
-                            className="px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-mono text-xs border border-slate-700"
-                          >
-                            {hint}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                    <span className="material-symbols-outlined text-[16px]">menu_book</span>
+                    {bc.source_url.replace('https://github.com/stripe/stripe-python/', '')}
+                  </a>
+                </div>
 
-          {/* Warnings */}
-          {report.warnings.length > 0 && (
-            <div className="p-4 rounded-xl bg-amber-950/20 border border-amber-800/30">
-              <h4 className="text-xs font-bold text-amber-300 mb-1 flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                Workflow Notices
-              </h4>
-              <ul className="text-xs text-slate-300 list-disc list-inside space-y-1">
-                {report.warnings.map((warn, wIdx) => (
-                  <li key={wIdx}>{warn}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+                {bc.search_hints.length > 0 && (
+                  <div className="flex flex-col gap-sm">
+                    <span className="font-label-md text-label-md text-on-surface-variant font-bold">SEARCH HINTS:</span>
+                    <div className="flex flex-wrap gap-sm font-code text-body-sm">
+                      {bc.search_hints.map((hint, hIdx) => (
+                        <span key={hIdx} className="bg-surface border border-outline-variant px-sm py-xs rounded text-on-surface font-bold">
+                          {hint}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
+
+      {/* Workflow Warnings Panel */}
+      <div className="bg-error-container/10 border border-error/50 rounded p-md flex gap-md">
+        <span className="material-symbols-outlined text-error text-2xl mt-1">error</span>
+        <div className="flex flex-col gap-sm">
+          <h4 className="font-headline-md text-headline-md text-error font-bold">Workflow Warnings</h4>
+          <ul className="font-code text-body-md text-on-surface list-disc pl-md flex flex-col gap-xs">
+            <li>Manual verification required for dynamic dict comprehensions handling Stripe objects.</li>
+            <li>Automated fixers may skip complex nested dictionary destructuring.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };

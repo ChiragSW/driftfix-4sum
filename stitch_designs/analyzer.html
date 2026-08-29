@@ -1,0 +1,355 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Migration Analyzer - DRIFTFIX</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#ccc3d6",
+                      "on-primary-fixed-variant": "#591db3",
+                      "inverse-primary": "#713dcc",
+                      "surface-dim": "#10141a",
+                      "primary-container": "#8957e5",
+                      "secondary-fixed-dim": "#7bdb80",
+                      "background": "#10141a",
+                      "on-secondary-fixed": "#002106",
+                      "tertiary-fixed": "#ffdad6",
+                      "on-secondary": "#00390e",
+                      "primary": "#d3bbff",
+                      "outline": "#958d9f",
+                      "error-container": "#93000a",
+                      "surface-bright": "#353940",
+                      "on-surface": "#dfe2eb",
+                      "tertiary-fixed-dim": "#ffb4ac",
+                      "outline-variant": "#4a4453",
+                      "secondary-fixed": "#97f999",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-high": "#262a31",
+                      "inverse-surface": "#dfe2eb",
+                      "tertiary": "#ffb4ac",
+                      "inverse-on-surface": "#2d3137",
+                      "on-primary": "#3f008d",
+                      "on-tertiary-fixed-variant": "#93000e",
+                      "surface": "#10141a",
+                      "primary-fixed": "#ebddff",
+                      "on-error": "#690005",
+                      "on-tertiary-container": "#fffdff",
+                      "on-background": "#dfe2eb",
+                      "error": "#ffb4ab",
+                      "surface-container": "#1c2026",
+                      "on-primary-fixed": "#250059",
+                      "on-primary-container": "#fffdff",
+                      "tertiary-container": "#da3633",
+                      "surface-variant": "#31353c",
+                      "secondary": "#7bdb80",
+                      "surface-container-lowest": "#0a0e14",
+                      "on-secondary-container": "#91f294",
+                      "primary-fixed-dim": "#d3bbff",
+                      "secondary-container": "#007124",
+                      "on-tertiary-fixed": "#410003",
+                      "surface-tint": "#d3bbff",
+                      "surface-container-highest": "#31353c",
+                      "on-tertiary": "#690007",
+                      "surface-container-low": "#181c22",
+                      "on-secondary-fixed-variant": "#005319"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "gutter": "16px",
+                      "container-max": "1280px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "spaceGrotesk"
+                      ],
+                      "body-lg": [
+                              "jetbrainsMono"
+                      ],
+                      "display": [
+                              "spaceGrotesk"
+                      ],
+                      "label-md": [
+                              "jetbrainsMono"
+                      ],
+                      "headline-md": [
+                              "spaceGrotesk"
+                      ],
+                      "body-sm": [
+                              "jetbrainsMono"
+                      ],
+                      "code": [
+                              "jetbrainsMono"
+                      ],
+                      "body-md": [
+                              "jetbrainsMono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "code": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { font-family: 'jetbrainsMono', monospace; background-color: #0d1117; color: #dfe2eb; }
+        .font-headline-lg, .font-display, .font-headline-md { font-family: 'spaceGrotesk', sans-serif; }
+      </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto docked full-width top-0 sticky z-50">
+<div class="flex items-center gap-md">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF2mZVLLWgAnivO3Eua0qfflkoBCc27R6Af4etWI8JFm0vo1HkpS8plgLVKZ4yf6b4wQJD9u3-PYRT--aFKVmOt2XcjeontsjeldRHpWrRLrtu3YifXqp6Wd6s4-AZYj4gn31UvGYQR1vZo2F2hUJdQJCmXBVfwM0XuWQDy1SAVWPu0VxQLbCxblxKDBdlnPfd5Sm8RuQ5BR9xjNfYb9pTLHCByyL1cF2h8BRFObo8lTjwmTfS336v3g" alt="DriftFix Official Logo" class="h-8 w-auto object-contain">
+<nav class="hidden md:flex gap-lg ml-xl">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150 font-label-md text-label-md" href="#">Overview &amp; Docs</a>
+<a class="text-primary border-b-2 border-primary pb-2 font-label-md text-label-md opacity-80 scale-95" href="#">Migration Analyzer</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150 font-label-md text-label-md" href="#">Impact Scout &amp; Fixer</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150 font-label-md text-label-md" href="#">Daytona Sandbox</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150 font-label-md text-label-md" href="#">Codex Provider</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150 font-label-md text-label-md" href="#">TrueForge Workflow</a>
+</nav>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-label-md text-label-md text-on-surface-variant px-sm py-xs bg-surface-variant rounded">v0.1.0</span>
+<span class="material-symbols-outlined text-primary cursor-pointer hover:text-primary-fixed transition-colors">check_circle</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-on-surface transition-colors">database</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-on-surface transition-colors">link</span>
+</div>
+</header>
+<div class="flex flex-1 max-w-container-max mx-auto w-full relative">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant fixed left-0 top-16 h-full w-[260px] hidden lg:flex flex-col gap-xs p-sm z-40 overflow-y-auto">
+<div class="mb-lg p-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">driftfix-4sum</h3>
+<p class="font-code text-body-sm text-on-surface-variant">Sourced Stripe Python Migration Engine</p>
+</div>
+<nav class="flex flex-col gap-xs font-code text-body-sm">
+<a class="bg-primary-container text-on-primary-container font-bold border-l-2 border-primary px-md py-sm flex items-center gap-sm scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder</span>
+                    driftfix-4sum
+                </a>
+<a class="text-on-surface-variant hover:bg-surface-variant px-md py-sm flex items-center gap-sm transition-colors" href="#">
+<span class="material-symbols-outlined">fork_right</span>
+                    driftfix/stripe-v15.6.0
+                </a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 w-full lg:ml-[260px] p-gutter md:p-lg lg:p-xl flex flex-col gap-lg min-h-0 overflow-y-auto">
+<header class="flex flex-col gap-sm border-b border-outline-variant pb-md">
+<h1 class="font-display text-display text-on-surface">Deterministic Stripe Migration MCP Analyzer</h1>
+<div class="flex items-center gap-sm font-code text-code text-secondary">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span class="">Connected to official GitHub release data</span>
+</div>
+</header>
+<!-- Configuration Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Left Panel -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md">
+<div class="flex justify-between items-start">
+<h2 class="font-label-md text-label-md text-on-surface uppercase">Latest Stable Release</h2>
+<span class="font-code text-code text-primary bg-primary-container/20 px-sm py-xs rounded">Major 15</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">15.6.0</div>
+<button class="self-start font-label-md text-label-md border border-outline-variant text-on-surface hover:bg-surface-variant px-md py-sm rounded transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                        View GitHub Release
+                    </button>
+</div>
+<!-- Right Panel -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md">
+<h2 class="font-label-md text-label-md text-on-surface uppercase">Target Upgrade</h2>
+<div class="flex flex-col gap-sm">
+<input class="bg-background border border-outline-variant text-on-surface font-code text-body-lg p-sm rounded focus:border-primary focus:ring-0 outline-none w-full" type="text" value="14.3.0">
+<div class="flex gap-xs flex-wrap">
+<span class="font-code text-body-sm text-on-surface-variant cursor-pointer hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface">14.3.0</span>
+<span class="font-code text-body-sm text-on-surface-variant cursor-pointer hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface">15.6.0</span>
+<span class="font-code text-body-sm text-on-surface-variant cursor-pointer hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface">13.0.0</span>
+</div>
+</div>
+<button class="self-end mt-auto font-label-md text-label-md bg-primary-container text-on-primary-container hover:bg-primary-fixed transition-colors px-md py-sm rounded flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px]">troubleshoot</span>
+                        Analyze Upgrade
+                    </button>
+</div>
+</div>
+<!-- Pipeline Visualizer -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md overflow-x-auto">
+<h3 class="font-label-md text-label-md text-on-surface uppercase">Pipeline Status</h3>
+<div class="flex items-center min-w-max py-sm">
+<!-- Node 1 -->
+<div class="flex items-center gap-xs">
+<div class="h-6 w-6 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-[14px]">check</span>
+</div>
+<span class="font-code text-body-sm text-on-surface">validate_request</span>
+</div>
+<div class="w-8 h-px bg-secondary mx-sm"></div>
+<!-- Node 2 -->
+<div class="flex items-center gap-xs">
+<div class="h-6 w-6 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-[14px]">check</span>
+</div>
+<span class="font-code text-body-sm text-on-surface">fetch_latest_release</span>
+</div>
+<div class="w-8 h-px bg-secondary mx-sm"></div>
+<!-- Node 3 -->
+<div class="flex items-center gap-xs opacity-70">
+<div class="h-6 w-6 rounded-full bg-primary/20 border border-primary flex items-center justify-center animate-pulse">
+<span class="material-symbols-outlined text-primary text-[14px]">sync</span>
+</div>
+<span class="font-code text-body-sm text-on-surface">fetch_guidance</span>
+</div>
+<div class="w-8 h-px bg-outline-variant mx-sm"></div>
+<!-- Node 4 -->
+<div class="flex items-center gap-xs opacity-40">
+<div class="h-6 w-6 rounded-full bg-surface-variant border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-[14px]">pending</span>
+</div>
+<span class="font-code text-body-sm text-on-surface">extract_changes</span>
+</div>
+<div class="w-8 h-px bg-outline-variant mx-sm"></div>
+<!-- Node 5 -->
+<div class="flex items-center gap-xs opacity-40">
+<div class="h-6 w-6 rounded-full bg-surface-variant border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-[14px]">pending</span>
+</div>
+<span class="font-code text-body-sm text-on-surface">build_report</span>
+</div>
+</div>
+</div>
+<!-- Migration Report -->
+<div class="bg-surface-container-low border border-outline-variant rounded flex flex-col">
+<div class="border-b border-outline-variant bg-surface-variant p-sm flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface">MIGRATION REPORT</h3>
+<span class="font-code text-body-sm text-secondary bg-secondary-container/20 border border-secondary px-sm py-xs rounded">UPGRADE AVAILABLE: 14.3.0 → 15.6.0</span>
+</div>
+<div class="p-md flex flex-col gap-lg">
+<div class="flex flex-col gap-xs">
+<h4 class="font-headline-md text-headline-md text-error flex items-center gap-sm">
+<span class="material-symbols-outlined">warning</span>
+                            Breaking Change
+                        </h4>
+<p class="font-code text-body-lg text-on-surface bg-surface border border-outline-variant p-sm rounded border-l-4 border-l-error">
+                            StripeObject no longer behaves as a dict
+                        </p>
+</div>
+<div class="flex flex-col gap-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">OFFICIAL SOURCE:</span>
+<a class="font-code text-body-sm text-primary hover:underline flex items-center gap-xs w-max" href="#">
+<span class="material-symbols-outlined text-[16px]">menu_book</span>
+                            wiki/Migration-guide-for-v15#stripeobject
+                        </a>
+</div>
+<div class="flex flex-col gap-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">SEARCH HINTS:</span>
+<div class="flex flex-wrap gap-sm font-code text-body-sm">
+<span class="bg-surface border border-outline-variant px-sm py-xs rounded text-on-surface">.get(</span>
+<span class="bg-surface border border-outline-variant px-sm py-xs rounded text-on-surface">.keys(</span>
+<span class="bg-surface border border-outline-variant px-sm py-xs rounded text-on-surface">.values(</span>
+<span class="bg-surface border border-outline-variant px-sm py-xs rounded text-on-surface">.items(</span>
+<span class="bg-surface border border-outline-variant px-sm py-xs rounded text-on-surface">dict(</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Workflow Warnings Panel -->
+<div class="bg-error-container/10 border border-error/50 rounded p-md flex gap-md">
+<span class="material-symbols-outlined text-error text-2xl mt-1">error</span>
+<div class="flex flex-col gap-sm">
+<h4 class="font-headline-md text-headline-md text-error">Workflow Warnings</h4>
+<ul class="font-code text-body-md text-on-surface list-disc pl-md flex flex-col gap-xs">
+<li class="">Manual verification required for dynamic dict comprehensions handling Stripe objects.</li>
+<li class="">Automated fixers may skip complex nested dictionary destructuring.</li>
+</ul>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface border-t border-outline-variant flex justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto font-code text-body-sm mt-auto z-50">
+<div class="text-on-surface-variant font-bold">DriftFix • Team 4Sum • Sourced Stripe Python Migration Engine</div>
+<div class="flex gap-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">MIT Licensed</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">TrueForge 0.1.4 Verified Harness</a>
+</div>
+</footer>
+
+
+</body></html>

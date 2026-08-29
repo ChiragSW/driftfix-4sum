@@ -41,18 +41,6 @@ function buildDiff(before: string, after: string): DiffLine[] {
   return result;
 }
 
-const lineStyle: Record<DiffLine['type'], string> = {
-  added:   'bg-emerald-950/50 text-emerald-200 border-l-2 border-emerald-500',
-  removed: 'bg-rose-950/40 text-rose-300 border-l-2 border-rose-600 line-through opacity-70',
-  context: 'text-slate-400',
-};
-
-const prefix: Record<DiffLine['type'], string> = {
-  added:   '+',
-  removed: '-',
-  context: ' ',
-};
-
 export const DiffViewer: React.FC<DiffViewerProps> = ({
   title = 'Unified Diff',
   filename,
@@ -65,59 +53,61 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
   const removedCount = diff.filter(l => l.type === 'removed').length;
 
   const patchText = diff
-    .map(l => `${prefix[l.type]} ${l.content}`)
+    .map(l => `${l.type === 'added' ? '+' : l.type === 'removed' ? '-' : ' '} ${l.content}`)
     .join('\n');
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+    <div className="bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden shadow-lg">
       {/* Header */}
-      <div className="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between gap-3">
+      <div className="bg-surface-container px-4 py-3 border-b border-outline-variant flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <ArrowRightLeft className="w-4 h-4 text-indigo-400 shrink-0" />
-          <span className="text-xs font-bold text-slate-200">{title}</span>
+          <ArrowRightLeft className="w-4 h-4 text-primary shrink-0" />
+          <span className="font-mono text-xs font-bold text-on-surface">{title}</span>
           {filename && (
-            <span className="text-[11px] font-mono text-slate-500 hidden sm:block">{filename}</span>
+            <span className="text-[11px] font-mono text-outline hidden sm:block">({filename})</span>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] font-mono">
-            <span className="text-emerald-400 font-bold">+{addedCount}</span>
-            <span className="text-slate-600 mx-1">/</span>
-            <span className="text-rose-400 font-bold">-{removedCount}</span>
+        <div className="flex items-center gap-3 font-mono">
+          <span className="text-xs font-bold">
+            <span className="text-secondary">+{addedCount}</span>
+            <span className="text-outline mx-1">/</span>
+            <span className="text-tertiary">-{removedCount}</span>
           </span>
           <button
             onClick={() => copy(patchText)}
             className={clsx(
-              'flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded border transition',
+              'flex items-center gap-1 text-[11px] font-mono px-2.5 py-1 rounded border transition-colors',
               copied
-                ? 'text-emerald-400 border-emerald-600/40 bg-emerald-950/30'
-                : 'text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-200'
+                ? 'text-secondary border-secondary/40 bg-secondary-container/20'
+                : 'text-on-surface-variant border-outline-variant hover:border-outline hover:text-on-surface bg-surface'
             )}
           >
-            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copied ? <Check className="w-3 h-3 text-secondary" /> : <Copy className="w-3 h-3" />}
             {copied ? 'Copied' : 'Copy patch'}
           </button>
         </div>
       </div>
 
       {/* Diff lines */}
-      <div className="font-mono text-xs leading-6 overflow-x-auto max-h-80 overflow-y-auto">
+      <div className="font-mono text-xs leading-6 overflow-x-auto max-h-80 overflow-y-auto bg-surface-container-lowest p-2">
         {diff.map((line, idx) => (
           <div
             key={idx}
             className={clsx(
-              'flex items-start px-2 py-0.5',
-              lineStyle[line.type]
+              'flex items-start px-2 py-0.5 rounded font-mono',
+              line.type === 'added'   ? 'bg-secondary-container/15 text-secondary border-l-2 border-secondary' :
+              line.type === 'removed' ? 'bg-tertiary-container/15 text-tertiary border-l-2 border-tertiary opacity-80' :
+                                        'text-on-surface-variant'
             )}
           >
             <span className={clsx(
-              'w-6 text-center mr-2 shrink-0',
-              line.type === 'added'   ? 'text-emerald-500' :
-              line.type === 'removed' ? 'text-rose-500'    : 'text-slate-700'
+              'w-6 text-center mr-2 shrink-0 select-none font-bold',
+              line.type === 'added'   ? 'text-secondary' :
+              line.type === 'removed' ? 'text-tertiary'  : 'text-outline'
             )}>
-              {prefix[line.type]}
+              {line.type === 'added' ? '+' : line.type === 'removed' ? '-' : ' '}
             </span>
-            <span className="w-8 text-slate-700 select-none pr-3 text-right shrink-0">
+            <span className="w-8 text-outline select-none pr-3 text-right shrink-0">
               {line.lineNo}
             </span>
             <span className="flex-1 whitespace-pre">{line.content}</span>

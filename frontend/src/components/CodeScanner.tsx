@@ -1,202 +1,288 @@
 import React, { useState } from 'react';
 import { 
-  FileCode, 
-  Search, 
-  CheckCircle2, 
-  Sparkles, 
-  ExternalLink,
-  ArrowRightLeft,
+  Terminal as TerminalIcon,
+  Check, 
   Copy,
-  Check
+  ExternalLink,
+  Search,
+  Sparkles,
+  AlertTriangle,
+  FileCode,
+  CheckCircle2
 } from 'lucide-react';
 import { DEMO_PRESETS } from '../data/mockData';
 
 export const CodeScanner: React.FC = () => {
   const [selectedPreset, setSelectedPreset] = useState<string>('customer_service.py');
-  const [customCode, setCustomCode] = useState<string>(DEMO_PRESETS['customer_service.py'].v14Code);
   const [scanned, setScanned] = useState<boolean>(false);
   const [fixed, setFixed] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
+  const [copiedPatch, setCopiedPatch] = useState<boolean>(false);
+  const [copiedDiff, setCopiedDiff] = useState<boolean>(false);
 
   const currentPresetData = DEMO_PRESETS[selectedPreset];
 
   const handleSelectPreset = (key: string) => {
     setSelectedPreset(key);
-    setCustomCode(DEMO_PRESETS[key].v14Code);
     setScanned(false);
     setFixed(false);
   };
 
-  const handleScan = () => {
-    setScanned(true);
-    setFixed(false);
-  };
-
-  const handleFix = () => {
-    setFixed(true);
-  };
-
-  const handleCopy = (text: string) => {
+  const handleCopy = (text: string, isDiff = false) => {
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (isDiff) {
+      setCopiedDiff(true);
+      setTimeout(() => setCopiedDiff(false), 2000);
+    } else {
+      setCopiedPatch(true);
+      setTimeout(() => setCopiedPatch(false), 2000);
+    }
   };
 
-  // Find occurrences of breaking pattern
-  const findMatches = (code: string) => {
-    const lines = code.split('\n');
-    const matches: { line: number; text: string; hint: string }[] = [];
-    const hints = ['.get(', '.keys(', '.values(', '.items(', 'dict('];
+  // Preset specific lines for accurate table representation
+  const isCustomerService = selectedPreset === 'customer_service.py';
 
-    lines.forEach((lineText, idx) => {
-      for (const hint of hints) {
-        if (lineText.includes(hint) && !lineText.includes('to_dict()')) {
-          matches.push({ line: idx + 1, text: lineText.trim(), hint });
-          break;
-        }
-      }
-    });
-    return matches;
-  };
+  const v14LinesCustomer = [
+    { no: 42, text: 'def get_customer_email(customer_id):', broken: false },
+    { no: 43, text: '    customer = stripe.Customer.retrieve(customer_id)', broken: false },
+    { no: 44, text: '    return customer.get("email")', broken: true },
+    { no: 45, text: '', broken: false },
+    { no: 46, text: 'def customer_fields(customer):', broken: false },
+    { no: 47, text: '    return sorted(customer.keys())', broken: true },
+    { no: 48, text: '', broken: false },
+    { no: 49, text: 'def customer_metadata(customer):', broken: false },
+    { no: 50, text: '    return dict(customer.get("metadata", {}).items())', broken: true },
+    { no: 51, text: '', broken: false },
+    { no: 52, text: 'def customer_snapshot(customer):', broken: false },
+    { no: 53, text: '    return dict(customer)', broken: true },
+  ];
 
-  const matches = findMatches(customCode);
+  const v15LinesCustomer = [
+    { no: 42, text: 'def get_customer_email(customer_id):', fixed: false },
+    { no: 43, text: '    customer = stripe.Customer.retrieve(customer_id)', fixed: false },
+    { no: 44, text: '    return customer.to_dict().get("email")', fixed: true },
+    { no: 45, text: '', fixed: false },
+    { no: 46, text: 'def customer_fields(customer):', fixed: false },
+    { no: 47, text: '    return sorted(customer.to_dict().keys())', fixed: true },
+    { no: 48, text: '', fixed: false },
+    { no: 49, text: 'def customer_metadata(customer):', fixed: false },
+    { no: 50, text: '    return dict(customer.to_dict().get("metadata", {}).items())', fixed: true },
+    { no: 51, text: '', fixed: false },
+    { no: 52, text: 'def customer_snapshot(customer):', fixed: false },
+    { no: 53, text: '    return customer.to_dict()', fixed: true },
+  ];
+
+  const v14LinesInvoice = [
+    { no: 12, text: 'def invoice_summary(invoice: stripe.Invoice) -> dict:', broken: false },
+    { no: 13, text: '    return {', broken: false },
+    { no: 14, text: '        "id": invoice.get("id"),', broken: true },
+    { no: 15, text: '        "status": invoice.get("status"),', broken: true },
+    { no: 16, text: '        "amount_due": invoice.get("amount_due", 0),', broken: true },
+    { no: 17, text: '    }', broken: false },
+    { no: 18, text: '', broken: false },
+    { no: 19, text: 'def invoice_field_pairs(invoice: stripe.Invoice) -> dict:', broken: false },
+    { no: 20, text: '    return dict(invoice.items())', broken: true },
+  ];
+
+  const v15LinesInvoice = [
+    { no: 12, text: 'def invoice_summary(invoice: stripe.Invoice) -> dict:', fixed: false },
+    { no: 13, text: '    data = invoice.to_dict()', fixed: true },
+    { no: 14, text: '    return {', fixed: false },
+    { no: 15, text: '        "id": data.get("id"),', fixed: false },
+    { no: 16, text: '        "status": data.get("status"),', fixed: false },
+    { no: 17, text: '        "amount_due": data.get("amount_due", 0),', fixed: false },
+    { no: 18, text: '    }', fixed: false },
+    { no: 19, text: '', fixed: false },
+    { no: 20, text: 'def invoice_field_pairs(invoice: stripe.Invoice) -> dict:', fixed: false },
+    { no: 21, text: '    return dict(invoice.to_dict().items())', fixed: true },
+  ];
+
+  const originalLines = isCustomerService ? v14LinesCustomer : v14LinesInvoice;
+  const patchedLines = isCustomerService ? v15LinesCustomer : v15LinesInvoice;
+  const breakingCount = originalLines.filter(l => l.broken).length;
+
+  const rawDiff = isCustomerService ? `--- a/demo_target/customer_service.py
++++ b/demo_target/customer_service.py
+@@ -44,10 +44,10 @@ def get_customer_email(customer_id):
+-    return customer.get("email")
++    return customer.to_dict().get("email")
+
+ def customer_fields(customer):
+-    return sorted(customer.keys())
++    return sorted(customer.to_dict().keys())
+
+ def customer_metadata(customer):
+-    return dict(customer.get("metadata", {}).items())
++    return dict(customer.to_dict().get("metadata", {}).items())
+
+ def customer_snapshot(customer):
+-    return dict(customer)
++    return customer.to_dict()` : `--- a/demo_target/invoice_service.py
++++ b/demo_target/invoice_service.py
+@@ -13,8 +13,9 @@ def invoice_summary(invoice: stripe.Invoice) -> dict:
++    data = invoice.to_dict()
+     return {
+-        "id": invoice.get("id"),
+-        "status": invoice.get("status"),
+-        "amount_due": invoice.get("amount_due", 0),
++        "id": data.get("id"),
++        "status": data.get("status"),
++        "amount_due": data.get("amount_due", 0),
+     }
+
+ def invoice_field_pairs(invoice: stripe.Invoice) -> dict:
+-    return dict(invoice.items())
++    return dict(invoice.to_dict().items())`;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+    <div className="space-y-6 animate-fadeIn">
+      {/* Page Header matching Stitch Screen 4 */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant pb-4">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <FileCode className="w-5 h-5 text-indigo-400" />
-            Impact Scout & Migration Reviewer
-          </h2>
-          <p className="text-xs text-slate-400">
-            TrueForge subagent simulation: locates breaking Stripe v14 patterns and produces verified v15 patches.
-          </p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-on-surface mb-1 flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-[28px]">manage_search</span>
+            Impact Scout &amp; Migration Reviewer
+          </h1>
+          <div className="flex items-center gap-2 font-mono text-xs text-on-surface-variant">
+            <TerminalIcon className="w-3.5 h-3.5" />
+            <span>Target:</span>
+            <code className="bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-secondary font-bold">
+              {currentPresetData.filename}
+            </code>
+          </div>
         </div>
-        
-        {/* Preset Selector */}
+
         <div className="flex items-center gap-2">
-          {Object.keys(DEMO_PRESETS).map((presetKey) => (
-            <button
-              key={presetKey}
-              onClick={() => handleSelectPreset(presetKey)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition ${
-                selectedPreset === presetKey
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-              }`}
-            >
-              {presetKey}
-            </button>
-          ))}
+          {/* Preset Buttons */}
+          <div className="flex items-center gap-1.5 mr-2">
+            {Object.keys(DEMO_PRESETS).map((key) => (
+              <button
+                key={key}
+                onClick={() => handleSelectPreset(key)}
+                className={`px-2.5 py-1 rounded text-xs font-mono transition ${
+                  selectedPreset === key
+                    ? 'bg-primary-container text-on-primary-container font-bold border border-primary'
+                    : 'bg-surface-container text-on-surface-variant border border-outline-variant hover:text-on-surface'
+                }`}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => { setScanned(true); setFixed(false); }}
+            className="bg-surface border border-outline-variant text-on-surface font-mono text-xs px-3.5 py-2 rounded hover:border-primary hover:text-primary transition-colors flex items-center gap-1.5"
+          >
+            <Search className="w-3.5 h-3.5" />
+            Run Impact Scout
+          </button>
+          <button
+            onClick={() => { setScanned(true); setFixed(true); }}
+            className="bg-primary-container text-on-primary-container font-mono text-xs font-bold px-3.5 py-2 rounded hover:bg-inverse-primary transition-colors flex items-center gap-1.5 border border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Run Migration Reviewer
+          </button>
         </div>
       </div>
 
-      {/* Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleScan}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition"
-          >
-            <Search className="w-4 h-4" />
-            1. Run Impact Scout
-          </button>
-          <button
-            onClick={handleFix}
-            disabled={!scanned}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:opacity-40 text-white text-xs font-semibold shadow-md transition"
-          >
-            <Sparkles className="w-4 h-4" />
-            2. Run Migration Reviewer (Patch Code)
-          </button>
-        </div>
-
-        <div className="text-xs text-slate-400 font-mono">
-          File: <span className="text-slate-200">{currentPresetData.filename}</span>
-        </div>
-      </div>
-
-      {/* Code Viewer / Diff Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Original Code / Scanned Pattern View */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg flex flex-col">
-          <div className="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+      {/* Two-Column Code Comparison Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* LEFT: Original / Incompatible Code */}
+        <div className="bg-surface border border-outline-variant rounded flex flex-col overflow-hidden">
+          <div className="bg-surface-container-high border-b border-outline-variant px-4 py-2.5 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-              <span className="text-xs font-mono text-slate-300 font-semibold">
-                Original Code (Stripe v14 Incompatible)
-              </span>
+              <AlertTriangle className="w-4 h-4 text-tertiary" />
+              <span className="font-mono text-xs font-bold text-on-surface">Original / Incompatible Code</span>
             </div>
-            <span className="text-[11px] text-amber-400/90 font-mono">
-              {scanned ? `${matches.length} breaking pattern(s) found` : 'Ready to scan'}
-            </span>
+            <div className="bg-tertiary-container/20 border border-tertiary-container text-tertiary font-mono text-[11px] px-2 py-0.5 rounded flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+              {scanned ? `${breakingCount} breaking occurrences` : 'Ready to scan'}
+            </div>
           </div>
 
-          <div className="p-4 bg-slate-950 font-mono text-xs text-slate-300 overflow-x-auto flex-1 leading-relaxed">
-            <pre>
-              {customCode.split('\n').map((line, idx) => {
-                const isMatch = scanned && matches.some(m => m.line === idx + 1);
-                return (
-                  <div 
-                    key={idx} 
-                    className={`flex items-start px-2 py-0.5 rounded ${
-                      isMatch ? 'bg-red-950/50 text-red-200 border-l-2 border-red-500 font-bold' : ''
-                    }`}
-                  >
-                    <span className="w-8 text-slate-600 select-none text-right pr-3">{idx + 1}</span>
-                    <span className="flex-1">{line}</span>
-                  </div>
-                );
-              })}
-            </pre>
+          <div className="p-0 overflow-x-auto font-mono text-xs bg-[#0d1117] flex-1 min-h-[280px]">
+            <table className="w-full text-left border-collapse">
+              <tbody>
+                {originalLines.map((line, idx) => {
+                  const isBreaking = scanned && line.broken;
+                  return (
+                    <tr
+                      key={idx}
+                      className={isBreaking ? 'bg-tertiary-container/15 border-l-4 border-tertiary' : ''}
+                    >
+                      <td className="w-[42px] min-w-[42px] text-right pr-3 text-outline select-none border-r border-outline-variant bg-surface-container-low py-0.5">
+                        {line.no}
+                      </td>
+                      <td className="pl-3 py-0.5 whitespace-pre font-mono">
+                        {isBreaking ? (
+                          <span className="text-tertiary font-semibold">
+                            <span className="text-tertiary font-bold mr-1.5">-</span>
+                            <span className="line-through decoration-tertiary/70">{line.text}</span>
+                          </span>
+                        ) : (
+                          <span className="text-on-surface">{line.text}</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Right: Sourced Patch / Diff Viewer */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg flex flex-col">
-          <div className="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+        {/* RIGHT: Sourced Migration Patch */}
+        <div className="bg-surface border border-outline-variant rounded flex flex-col overflow-hidden relative shadow-[6px_6px_0px_0px_rgba(48,54,61,0.4)] border-primary/50">
+          <div className="bg-surface-container-high border-b border-outline-variant px-4 py-2.5 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              <span className="text-xs font-mono text-slate-300 font-semibold">
-                Sourced Migration Patch (Stripe v15 Compatible)
-              </span>
+              <Sparkles className="w-4 h-4 text-secondary" />
+              <span className="font-mono text-xs font-bold text-on-surface">Sourced Migration Patch</span>
             </div>
             {fixed && (
-              <button 
+              <button
                 onClick={() => handleCopy(currentPresetData.v15FixedCode)}
-                className="flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 font-mono"
+                className="bg-transparent border border-outline-variant text-on-surface-variant hover:text-on-surface font-mono text-[11px] px-2 py-0.5 rounded hover:border-outline transition-colors flex items-center gap-1"
               >
-                {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                {copied ? 'Copied' : 'Copy Patch'}
+                {copiedPatch ? <Check className="w-3 h-3 text-secondary" /> : <Copy className="w-3 h-3" />}
+                {copiedPatch ? 'Copied' : 'Copy Patch'}
               </button>
             )}
           </div>
 
-          <div className="p-4 bg-slate-950 font-mono text-xs text-slate-300 overflow-x-auto flex-1 leading-relaxed">
+          <div className="p-0 overflow-x-auto font-mono text-xs bg-[#0d1117] flex-1 min-h-[280px]">
             {fixed ? (
-              <pre>
-                {currentPresetData.v15FixedCode.split('\n').map((line, idx) => {
-                  const isFixedLine = line.includes('to_dict()');
-                  return (
-                    <div 
-                      key={idx} 
-                      className={`flex items-start px-2 py-0.5 rounded ${
-                        isFixedLine ? 'bg-emerald-950/50 text-emerald-200 border-l-2 border-emerald-500 font-bold' : ''
-                      }`}
-                    >
-                      <span className="w-8 text-slate-600 select-none text-right pr-3">{idx + 1}</span>
-                      <span className="flex-1">{line}</span>
-                    </div>
-                  );
-                })}
-              </pre>
+              <table className="w-full text-left border-collapse">
+                <tbody>
+                  {patchedLines.map((line, idx) => {
+                    return (
+                      <tr
+                        key={idx}
+                        className={line.fixed ? 'bg-secondary-container/15 border-l-4 border-secondary' : ''}
+                      >
+                        <td className="w-[42px] min-w-[42px] text-right pr-3 text-outline select-none border-r border-outline-variant bg-surface-container-low py-0.5">
+                          {line.no}
+                        </td>
+                        <td className="pl-3 py-0.5 whitespace-pre font-mono">
+                          {line.fixed ? (
+                            <span className="text-secondary font-bold">
+                              <span className="mr-1.5">+</span>
+                              {line.text}
+                            </span>
+                          ) : (
+                            <span className="text-on-surface">{line.text}</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-500">
-                <ArrowRightLeft className="w-8 h-8 mb-2 opacity-40" />
-                <p className="text-xs font-sans">
-                  Click <strong>Run Migration Reviewer</strong> to produce the official <code className="text-slate-400">.to_dict()</code> patch.
+              <div className="h-full flex flex-col items-center justify-center text-center p-8 text-outline">
+                <FileCode className="w-8 h-8 mb-2 opacity-40" />
+                <p className="text-xs font-mono">
+                  Click <strong>Run Migration Reviewer</strong> to produce the verified <code className="text-primary font-bold">.to_dict()</code> patch.
                 </p>
               </div>
             )}
@@ -204,19 +290,82 @@ export const CodeScanner: React.FC = () => {
         </div>
       </div>
 
+      {/* Unified Diff View */}
+      {fixed && (
+        <div className="bg-surface border border-outline-variant rounded flex flex-col overflow-hidden animate-fadeIn">
+          <div className="bg-surface-container-high border-b border-outline-variant px-4 py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div className="flex items-center gap-3">
+              <div className="font-mono text-xs text-on-surface font-bold flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[18px]">difference</span>
+                Unified Diff View
+              </div>
+              <div className="flex items-center gap-2 font-mono text-[11px] bg-surface-container px-2.5 py-0.5 rounded-full border border-outline-variant">
+                <span className="text-secondary font-bold">+4 additions</span>
+                <span className="text-outline">|</span>
+                <span className="text-tertiary font-bold">-4 deletions</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleCopy(rawDiff, true)}
+                className="bg-surface border border-outline-variant text-on-surface-variant hover:text-on-surface font-mono text-[11px] px-2.5 py-1 rounded hover:border-outline transition-colors flex items-center gap-1"
+              >
+                {copiedDiff ? <Check className="w-3 h-3 text-secondary" /> : <Copy className="w-3 h-3" />}
+                {copiedDiff ? 'Copied Diff' : 'Copy Diff'}
+              </button>
+              <a
+                href="https://github.com/stripe/stripe-python/wiki/Migration-guide-for-v15#stripeobject"
+                target="_blank"
+                rel="noreferrer"
+                className="bg-transparent border border-outline-variant text-primary hover:bg-primary/10 font-mono text-[11px] px-2.5 py-1 rounded hover:border-primary transition-colors flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-[14px]">menu_book</span>
+                View Official Stripe Wiki <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+
+          <div className="p-0 overflow-x-auto font-mono text-xs bg-[#0d1117]">
+            <div className="px-4 py-1.5 bg-surface-container-low border-b border-outline-variant text-outline flex items-center gap-2">
+              <span className="material-symbols-outlined text-[14px]">commit</span>
+              @@ {currentPresetData.filename} @@
+            </div>
+            <pre className="p-4 leading-relaxed font-mono text-xs">
+              {rawDiff.split('\n').map((line, idx) => {
+                const isAdd = line.startsWith('+') && !line.startsWith('+++');
+                const isRem = line.startsWith('-') && !line.startsWith('---');
+                return (
+                  <div
+                    key={idx}
+                    className={`px-2 py-0.5 rounded ${
+                      isAdd ? 'bg-secondary-container/15 text-secondary font-bold' :
+                      isRem ? 'bg-tertiary-container/15 text-tertiary font-semibold' :
+                              'text-on-surface-variant'
+                    }`}
+                  >
+                    {line}
+                  </div>
+                );
+              })}
+            </pre>
+          </div>
+        </div>
+      )}
+
       {/* Sourced Citation Note */}
-      <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300 flex items-center justify-between">
+      <div className="p-4 rounded bg-surface-container-low border border-outline-variant text-xs font-mono text-on-surface-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <CheckCircle2 className="w-4 h-4 text-secondary shrink-0" />
           <span>
-            <strong>Official Stripe Migration Rule:</strong> In v15, dictionary operations on <code className="text-slate-200">StripeObject</code> must be called on <code className="text-emerald-400 font-mono">.to_dict()</code>.
+            <strong className="text-on-surface">Official Stripe Migration Rule:</strong> In v15, dictionary operations on <code className="text-primary font-bold">StripeObject</code> must be called on <code className="text-secondary font-bold">.to_dict()</code>.
           </span>
         </div>
         <a
           href="https://github.com/stripe/stripe-python/wiki/Migration-guide-for-v15#stripeobject"
           target="_blank"
           rel="noreferrer"
-          className="text-indigo-400 hover:text-indigo-300 font-mono flex items-center gap-1 shrink-0 ml-4"
+          className="text-primary hover:underline font-mono flex items-center gap-1 shrink-0"
         >
           Wiki Citation <ExternalLink className="w-3 h-3" />
         </a>
@@ -224,7 +373,4 @@ export const CodeScanner: React.FC = () => {
     </div>
   );
 };
-
-// ── DiffViewer integration export ───────────────────────────────────────────
-// Re-export so parent pages can use DiffViewer directly from the scanner module
 export { DiffViewer } from './DiffViewer';

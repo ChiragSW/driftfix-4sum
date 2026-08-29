@@ -12,45 +12,45 @@ interface StatCardProps {
 }
 
 const variantRing: Record<string, string> = {
-  default: 'border-slate-800',
-  success: 'border-emerald-800/40',
-  warning: 'border-amber-800/40',
-  error:   'border-rose-800/40',
-  info:    'border-indigo-800/40',
+  default: 'border-outline-variant',
+  success: 'border-secondary/40',
+  warning: 'border-tertiary/40',
+  error:   'border-error/40',
+  info:    'border-primary/40',
 };
 
 const variantIcon: Record<string, string> = {
-  default: 'bg-slate-800 text-slate-300',
-  success: 'bg-emerald-500/10 text-emerald-400',
-  warning: 'bg-amber-500/10 text-amber-400',
-  error:   'bg-rose-500/10 text-rose-400',
-  info:    'bg-indigo-500/10 text-indigo-400',
+  default: 'bg-surface-container text-on-surface-variant',
+  success: 'bg-secondary-container/20 text-secondary',
+  warning: 'bg-tertiary-container/20 text-tertiary',
+  error:   'bg-error-container/20 text-error',
+  info:    'bg-primary-container/20 text-primary',
 };
 
 const trendColor: Record<string, string> = {
-  up:      'text-emerald-400',
-  down:    'text-rose-400',
-  neutral: 'text-slate-400',
+  up:      'text-secondary',
+  down:    'text-error',
+  neutral: 'text-outline',
 };
 
 export const StatCard: React.FC<StatCardProps> = ({
   label, value, subValue, icon, trend = 'neutral', variant = 'default', className
 }) => (
   <div className={clsx(
-    'bg-slate-900/70 border rounded-xl p-5 flex items-start gap-4',
+    'bg-surface-container-low border rounded-xl p-4 flex items-start gap-3.5',
     variantRing[variant],
     className
   )}>
     {icon && (
-      <div className={clsx('w-10 h-10 rounded-lg flex items-center justify-center shrink-0', variantIcon[variant])}>
+      <div className={clsx('w-9 h-9 rounded-lg flex items-center justify-center shrink-0', variantIcon[variant])}>
         {icon}
       </div>
     )}
     <div className="min-w-0">
-      <p className="text-xs text-slate-400 font-medium truncate">{label}</p>
-      <p className="text-2xl font-extrabold text-white mt-0.5 font-mono">{value}</p>
+      <p className="text-xs text-on-surface-variant font-mono font-medium truncate">{label}</p>
+      <p className="text-xl font-bold text-on-surface mt-0.5 font-mono">{value}</p>
       {subValue && (
-        <p className={clsx('text-xs mt-0.5 font-medium', trendColor[trend])}>
+        <p className={clsx('text-[11px] mt-0.5 font-mono font-medium', trendColor[trend])}>
           {trend === 'up' && '↑ '}
           {trend === 'down' && '↓ '}
           {subValue}
