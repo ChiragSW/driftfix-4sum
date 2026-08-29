@@ -98,3 +98,5 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     </header>
   );
 };
+// MobileNav re-exported for use from Navbar file boundary
+export { MobileNav } from './MobileNav';
