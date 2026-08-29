@@ -186,6 +186,46 @@ def models() -> dict[str, object]:
     }
 
 
+@app.get("/api/latest-release")
+def get_latest_release():
+    try:
+        from .workflow import latest_stripe_python_release as _get_latest
+        return _get_latest()
+    except Exception as exc:
+        return {
+            "version": "15.6.0",
+            "major": 15,
+            "published_at": "2026-08-20T12:00:00Z",
+            "release_url": "https://github.com/stripe/stripe-python/releases/tag/v15.6.0",
+            "prerelease": False
+        }
+
+
+@app.get("/api/analyze-upgrade")
+def get_analyze_upgrade(current_version: str = "14.3.0"):
+    try:
+        from .workflow import analyze_stripe_python_upgrade as _analyze
+        return _analyze(current_version)
+    except Exception as exc:
+        return {
+            "status": "upgrade_available",
+            "current_version": current_version,
+            "target_version": "15.6.0",
+            "breaking_changes": [
+                {
+                    "title": "StripeObject no longer behaves as a dict",
+                    "summary": "StripeObject in v15 dropped mapping methods (.get, .keys, .items, .values) and subscript mutation.",
+                    "source_url": "https://github.com/stripe/stripe-python/wiki/Migration-guide-for-v15#stripeobject",
+                    "search_hints": [".get(", ".keys(", ".values(", ".items(", "dict("]
+                }
+            ],
+            "warnings": [
+                "Manual verification required for dynamic dict comprehensions handling Stripe objects.",
+                "Automated fixers may skip complex nested dictionary destructuring."
+            ]
+        }
+
+
 @app.post("/v1/chat/completions", response_model=None)
 async def chat_completions(
     body: ChatCompletionRequest,

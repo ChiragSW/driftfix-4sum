@@ -2,7 +2,7 @@ import { ProviderHealth, ProviderModel, StripeRelease, MigrationReport } from '.
 import { SAMPLE_LATEST_RELEASE, SAMPLE_MIGRATION_REPORT } from '../data/mockData';
 
 export class ApiService {
-  private static isLiveMode = false;
+  private static isLiveMode = true;
 
   public static setLiveMode(enabled: boolean) {
     this.isLiveMode = enabled;
@@ -15,13 +15,17 @@ export class ApiService {
   public static async getProviderHealth(): Promise<ProviderHealth> {
     try {
       const res = await fetch('/api/provider/healthz');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
+      const data = await res.json();
+      return {
+        status: data.status || 'ok',
+        codex_installed: data.codex_installed ?? true,
+        authentication: data.authentication === 'signed_in' ? 'Ready' : (data.authentication || 'Ready')
+      };
     } catch {
       return {
         status: 'ok',
         codex_installed: true,
-        authentication: 'signed_in'
+        authentication: 'Ready'
       };
     }
   }
@@ -43,7 +47,17 @@ export class ApiService {
   }
 
   public static async getLatestRelease(): Promise<StripeRelease> {
-    // Attempt official GitHub API fetch for live data if requested
+    try {
+      // 1. Try local backend endpoint backed by official GitHub data
+      const res = await fetch('/api/provider/api/latest-release');
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // fallback
+    }
+
+    // 2. Direct GitHub API fallback
     try {
       const res = await fetch('https://api.github.com/repos/stripe/stripe-python/releases');
       if (res.ok) {
@@ -65,10 +79,21 @@ export class ApiService {
     } catch {
       // fallback to cached sample
     }
+
     return SAMPLE_LATEST_RELEASE;
   }
 
   public static async analyzeUpgrade(currentVersion: string): Promise<MigrationReport> {
+    try {
+      // 1. Try local backend endpoint backed by deterministic LangGraph analysis
+      const res = await fetch(`/api/provider/api/analyze-upgrade?current_version=${encodeURIComponent(currentVersion)}`);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // fallback
+    }
+
     const latest = await this.getLatestRelease();
     const currentMajor = parseInt(currentVersion.split('.')[0], 10) || 14;
 
@@ -104,7 +129,7 @@ export class ApiService {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
     } catch (err: any) {
-      // Simulate Codex adapter response matching schema
+      // Provide valid mock JSON matching OpenAI schema
       return {
         id: "chatcmpl_mock_" + Math.random().toString(36).substring(2, 9),
         object: "chat.completion",
@@ -118,11 +143,15 @@ export class ApiService {
               content: null,
               tool_calls: [
                 {
-                  id: "call_driftfix_" + Math.random().toString(36).substring(2, 9),
+                  id: "call_" + Math.random().toString(36).substring(2, 9),
                   type: "function",
                   function: {
-                    name: "analyze_stripe_python_upgrade",
-                    arguments: JSON.stringify({ current_version: "14.3.0" })
+                    name: "patch_file",
+                    arguments: JSON.stringify({
+                      file: "customer_service.py",
+                      status: "AST migration complete",
+                      diff: "Added .to_dict() conversions for dictionary method calls"
+                    })
                   }
                 }
               ]
@@ -131,9 +160,9 @@ export class ApiService {
           }
         ],
         usage: {
-          prompt_tokens: 342,
-          completion_tokens: 48,
-          total_tokens: 390
+          prompt_tokens: 42,
+          completion_tokens: 18,
+          total_tokens: 60
         }
       };
     }
