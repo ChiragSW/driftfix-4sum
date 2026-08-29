@@ -1,15 +1,16 @@
-"""Intentionally outdated Stripe v14 code for the migration demo."""
+"""Stripe v15-compatible code for the migration demo."""
 
 import stripe
 
 
 def invoice_summary(invoice: stripe.Invoice) -> dict[str, object]:
+    invoice_data = invoice.to_dict()
     return {
-        "id": invoice.get("id"),
-        "status": invoice.get("status"),
-        "amount_due": invoice.get("amount_due", 0),
+        "id": invoice_data.get("id"),
+        "status": invoice_data.get("status"),
+        "amount_due": invoice_data.get("amount_due", 0),
     }
 
 
 def invoice_field_pairs(invoice: stripe.Invoice) -> dict[str, object]:
-    return dict(invoice.items())
+    return dict(invoice.to_dict().items())

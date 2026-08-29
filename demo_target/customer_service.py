@@ -1,19 +1,19 @@
-"""Intentionally outdated Stripe v14 code for the migration demo."""
+"""Stripe v15-compatible code for the migration demo."""
 
 import stripe
 
 
 def customer_email(customer: stripe.Customer) -> str | None:
-    return customer.get("email")
+    return customer.to_dict().get("email")
 
 
 def customer_fields(customer: stripe.Customer) -> list[str]:
-    return sorted(customer.keys())
+    return sorted(customer.to_dict().keys())
 
 
 def customer_metadata(customer: stripe.Customer) -> dict[str, str]:
-    return dict(customer.get("metadata", {}).items())
+    return dict(customer.to_dict().get("metadata", {}).items())
 
 
 def customer_snapshot(customer: stripe.Customer) -> dict[str, object]:
-    return dict(customer)
+    return customer.to_dict()
