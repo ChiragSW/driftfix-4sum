@@ -224,3 +224,7 @@ export const CodeScanner: React.FC = () => {
     </div>
   );
 };
+
+// ── DiffViewer integration export ───────────────────────────────────────────
+// Re-export so parent pages can use DiffViewer directly from the scanner module
+export { DiffViewer } from './DiffViewer';
