@@ -1,4 +1,4 @@
-from __future__ import annotations
+"""Small demo helpers that exercise Stripe invoice objects."""
 
 import stripe
 

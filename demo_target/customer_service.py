@@ -1,18 +1,21 @@
-from __future__ import annotations
+"""Small demo helpers that exercise Stripe resource objects."""
 
 import stripe
 
 
 def customer_email(customer: stripe.Customer) -> str | None:
-    return customer.to_dict().get("email")
+    data = customer.to_dict()
+    return data.get("email")
 
 
 def customer_fields(customer: stripe.Customer) -> list[str]:
-    return sorted(customer.to_dict().keys())
+    data = customer.to_dict()
+    return sorted(data.keys())
 
 
 def customer_metadata(customer: stripe.Customer) -> dict[str, str]:
-    return dict(customer.to_dict().get("metadata", {}).items())
+    data = customer.to_dict()
+    return dict(data.get("metadata", {}).items())
 
 
 def customer_snapshot(customer: stripe.Customer) -> dict[str, object]:

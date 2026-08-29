@@ -16,4 +16,3 @@ py-modules = ["customer_service", "invoice_service"]
 
 [tool.pytest.ini_options]
 testpaths = ["."]
-norecursedirs = ["legacy"]
