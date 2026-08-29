@@ -6,10 +6,12 @@ import {
   Terminal, 
   GitPullRequest, 
   Layers, 
-  CheckCircle2, 
   ArrowRight,
   Sparkles
 } from 'lucide-react';
+import { SummaryStats } from './SummaryStats';
+import { VersionHistory } from './VersionHistory';
+import { DemoOrchestrator } from './DemoOrchestrator';
 
 interface OverviewProps {
   setActiveTab: (tab: string) => void;
@@ -27,10 +29,15 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
             Smart Dependency Migration Engine
           </div>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-4">
-            Turn Stripe SDK Breaking Changes into <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Sourced, Sandbox-Tested Pull Requests</span>.
+            Turn Stripe SDK Breaking Changes into{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+              Sourced, Sandbox-Tested Pull Requests
+            </span>.
           </h1>
           <p className="text-slate-300 text-base leading-relaxed mb-6">
-            Codex supplies local model reasoning via an OpenAI-compatible adapter; TrueForge orchestrates MCP read-only tools, parallel subagents (Impact Scout & Migration Reviewer), Daytona sandboxed pytest validation, and a human merge approval checkpoint.
+            Codex supplies local model reasoning via an OpenAI-compatible adapter; TrueForge
+            orchestrates MCP read-only tools, parallel subagents (Impact Scout & Migration
+            Reviewer), Daytona sandboxed pytest validation, and a human merge approval checkpoint.
           </p>
           <div className="flex flex-wrap gap-4">
             <button
@@ -58,6 +65,12 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
         </div>
       </div>
 
+      {/* KPI Stats */}
+      <SummaryStats />
+
+      {/* Demo Orchestrator */}
+      <DemoOrchestrator setActiveTab={setActiveTab} />
+
       {/* 4 Pillars Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all">
@@ -66,7 +79,8 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
           </div>
           <h3 className="font-bold text-white text-base mb-1">Local Codex Adapter</h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Runs <code className="text-slate-300">codex exec</code> in read-only ephemeral sandboxes on port 8765. Zero OpenAI Platform API billing required.
+            Runs <code className="text-slate-300">codex exec</code> in read-only ephemeral sandboxes
+            on port 8765. Zero OpenAI Platform API billing required.
           </p>
         </div>
 
@@ -76,7 +90,8 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
           </div>
           <h3 className="font-bold text-white text-base mb-1">Read-Only MCP Server</h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            LangGraph 5-node state workflow querying official GitHub releases & Markdown changelog / Wiki migration guides.
+            LangGraph 5-node state workflow querying official GitHub releases & Markdown changelog
+            / Wiki migration guides.
           </p>
         </div>
 
@@ -86,7 +101,8 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
           </div>
           <h3 className="font-bold text-white text-base mb-1">Daytona Sandbox Gate</h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Deterministic verification: 7 tests pass on v14 → 7 fail after v15 dependency bump → 7 pass after <code className="text-slate-300">.to_dict()</code> fix.
+            Deterministic verification: 7 tests pass on v14 → 7 fail after v15 dependency
+            bump → 7 pass after <code className="text-slate-300">.to_dict()</code> fix.
           </p>
         </div>
 
@@ -96,20 +112,20 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
           </div>
           <h3 className="font-bold text-white text-base mb-1">Human Approval Merge</h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Draft PR created on a feature branch. Strict TrueForge checkpoint blocks merge to <code className="text-slate-300">main</code> until human clicks Allow.
+            Draft PR created on a feature branch. Strict TrueForge checkpoint blocks
+            merge to <code className="text-slate-300">main</code> until human clicks Allow.
           </p>
         </div>
       </div>
 
-      {/* System Architecture Flow Diagram */}
+      {/* Architecture diagram */}
       <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-6">
         <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
           <Layers className="w-5 h-5 text-indigo-400" />
           System Architecture & Execution Pipeline
         </h2>
         <div className="bg-slate-950 p-6 rounded-xl border border-slate-800/80 font-mono text-xs text-slate-300 overflow-x-auto leading-relaxed">
-          <pre className="text-slate-300">
-{`User Request: "Upgrade demo_target to latest stripe-python release"
+          <pre>{`User Request: "Upgrade demo_target to latest stripe-python release"
    │
    ▼
 [ TrueForge Agent Harness (Port 8790) ]
@@ -134,33 +150,8 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
         </div>
       </div>
 
-      {/* Verified Hackathon Evidence Card */}
-      <div className="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-800/40 rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-3">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          <h3 className="text-base font-bold text-white">Verified Hackathon Evidence</h3>
-        </div>
-        <ul className="space-y-2 text-sm text-slate-300">
-          <li className="flex items-start gap-2">
-            <span className="text-emerald-400 mt-1">✓</span>
-            <span>
-              <strong>TrueForge Session <code className="text-emerald-300 bg-emerald-950/60 px-1 py-0.5 rounded">01m14g71c8zg1fpz5fe84n2by2</code>:</strong> Automated discovery of Stripe 15.6.0, executed Impact Scout & Migration Reviewer subagents, and proved Daytona 7 passed → 7 failed → 7 passed.
-            </span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-emerald-400 mt-1">✓</span>
-            <span>
-              <strong>TrueForge Session <code className="text-emerald-300 bg-emerald-950/60 px-1 py-0.5 rounded">01m14gz3tg1kpbhapxpd2yxbaz</code>:</strong> Held merge call for explicit human approval before merging PR #1 as commit <code className="text-indigo-300 bg-indigo-950/60 px-1 py-0.5 rounded">7f29dbf</code>.
-            </span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-emerald-400 mt-1">✓</span>
-            <span>
-              <strong>Qodo Automated Quality Review:</strong> Fixed reproducibility fixture; latest check reported <strong>0 bugs and 0 rule violations</strong>.
-            </span>
-          </li>
-        </ul>
-      </div>
+      {/* Stripe version timeline */}
+      <VersionHistory />
     </div>
   );
 };
