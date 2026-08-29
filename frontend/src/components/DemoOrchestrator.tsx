@@ -82,9 +82,8 @@ export const DemoOrchestrator: React.FC<DemoOrchestratorProps> = ({ setActiveTab
 
       <ol className="flex flex-col sm:flex-row flex-wrap gap-2">
         {DEMO_STEPS.map((step, idx) => {
-          const done    = completedSteps.has(step.id);
-          const active  = currentStep === step.id;
-          const pending = !done && !active;
+          const done   = completedSteps.has(step.id);
+          const active = currentStep === step.id;
 
           return (
             <React.Fragment key={step.id}>
