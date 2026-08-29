@@ -299,7 +299,9 @@ async def _run_codex_once(prompt: str) -> CodexResult:
     if not SCHEMA_PATH.is_file():
         raise ProviderError(500, "schema_missing", "Codex output schema is missing.")
 
-    with tempfile.TemporaryDirectory(prefix="driftfix-provider-") as working_directory:
+    with tempfile.TemporaryDirectory(
+        prefix="driftfix-provider-", ignore_cleanup_errors=True
+    ) as working_directory:
         try:
             process = await asyncio.create_subprocess_exec(
                 executable,
