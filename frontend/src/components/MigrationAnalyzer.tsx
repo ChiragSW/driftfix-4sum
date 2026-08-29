@@ -42,34 +42,36 @@ export const MigrationAnalyzer: React.FC = () => {
   ];
 
   return (
-    <div className="w-full flex flex-col gap-lg animate-fadeIn">
-      {/* Header matching Stitch Screen 3 */}
-      <header className="flex flex-col gap-sm border-b border-outline-variant pb-md">
-        <h1 className="font-display text-display text-on-surface">Deterministic Stripe Migration MCP Analyzer</h1>
-        <div className="flex items-center gap-sm font-code text-code text-secondary font-bold">
+    <div className="w-full flex flex-col gap-6 animate-fadeIn">
+      {/* Header */}
+      <header className="flex flex-col gap-2 border-b border-[#30363d] pb-6">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#dfe2eb]">
+          Deterministic Stripe Migration MCP Analyzer
+        </h1>
+        <div className="flex items-center gap-2 font-mono text-xs text-[#7bdb80] font-semibold">
           <span className="material-symbols-outlined text-[16px]">check_circle</span>
           <span>Connected to official GitHub release data</span>
         </div>
       </header>
 
       {/* Configuration Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Panel */}
-        <div className="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md">
+        <div className="bg-[#181c22] border border-[#30363d] rounded p-6 flex flex-col gap-4">
           <div className="flex justify-between items-start">
-            <h2 className="font-label-md text-label-md text-on-surface uppercase font-bold">Latest Stable Release</h2>
-            <span className="font-code text-code text-primary bg-primary-container/20 px-sm py-xs rounded font-bold">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#8b949e]">Latest Stable Release</h2>
+            <span className="font-mono text-xs text-[#d3bbff] bg-[#8957e5]/20 border border-[#8957e5]/40 px-2 py-0.5 rounded font-semibold">
               Major {latestRelease?.major || 15}
             </span>
           </div>
-          <div className="font-headline-lg text-headline-lg text-on-surface font-bold">
+          <div className="text-3xl font-bold text-[#dfe2eb] font-mono">
             {latestRelease?.version || '15.6.0'}
           </div>
           <a
             href={latestRelease?.release_url || 'https://github.com/stripe/stripe-python/releases'}
             target="_blank"
             rel="noreferrer"
-            className="self-start font-label-md text-label-md border border-outline-variant text-on-surface hover:bg-surface-variant px-md py-sm rounded transition-colors flex items-center gap-sm"
+            className="self-start text-xs font-medium border border-[#30363d] text-[#dfe2eb] hover:bg-[#262a31] hover:border-[#8b949e] px-4 py-2 rounded transition flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[16px]">open_in_new</span>
             View GitHub Release
@@ -77,77 +79,68 @@ export const MigrationAnalyzer: React.FC = () => {
         </div>
 
         {/* Right Panel */}
-        <div className="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md">
-          <h2 className="font-label-md text-label-md text-on-surface uppercase font-bold">Target Upgrade</h2>
-          <div className="flex flex-col gap-sm">
+        <div className="bg-[#181c22] border border-[#30363d] rounded p-6 flex flex-col gap-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-[#8b949e]">Target Upgrade</h2>
+          <div className="flex flex-col gap-2">
             <input
               type="text"
               value={currentVersion}
               onChange={(e) => setCurrentVersion(e.target.value)}
-              className="bg-background border border-outline-variant text-on-surface font-code text-body-lg p-sm rounded focus:border-primary focus:ring-0 outline-none w-full"
+              className="bg-[#10141a] border border-[#30363d] text-[#dfe2eb] font-mono text-base p-2.5 rounded focus:border-[#8957e5] focus:ring-1 focus:ring-[#8957e5] outline-none w-full"
             />
-            <div className="flex gap-xs flex-wrap">
-              <button
-                onClick={() => setCurrentVersion('14.3.0')}
-                className="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface cursor-pointer"
-              >
-                14.3.0
-              </button>
-              <button
-                onClick={() => setCurrentVersion('15.6.0')}
-                className="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface cursor-pointer"
-              >
-                15.6.0
-              </button>
-              <button
-                onClick={() => setCurrentVersion('13.0.0')}
-                className="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors border border-outline-variant px-xs py-1 rounded bg-surface cursor-pointer"
-              >
-                13.0.0
-              </button>
+            <div className="flex gap-2 flex-wrap">
+              {['14.3.0', '15.6.0', '13.0.0'].map((ver) => (
+                <button
+                  key={ver}
+                  onClick={() => setCurrentVersion(ver)}
+                  className="font-mono text-xs text-[#8b949e] hover:text-[#d3bbff] transition border border-[#30363d] px-2.5 py-1 rounded bg-[#10141a] hover:bg-[#262a31]"
+                >
+                  {ver}
+                </button>
+              ))}
             </div>
           </div>
           <button
             onClick={handleAnalyze}
             disabled={loading}
-            className="self-end mt-auto font-label-md text-label-md bg-primary-container text-on-primary-container hover:bg-primary-fixed transition-colors px-md py-sm rounded flex items-center gap-sm cursor-pointer disabled:opacity-50 font-bold"
+            className="self-end mt-auto text-xs font-semibold bg-[#8957e5] text-white hover:bg-[#713dcc] transition px-5 py-2.5 rounded flex items-center gap-2 cursor-pointer disabled:opacity-50 shadow-sm"
           >
-            <span className="material-symbols-outlined text-[16px]">troubleshoot</span>
+            <span className="material-symbols-outlined text-[18px]">troubleshoot</span>
             {loading ? 'Analyzing...' : 'Analyze Upgrade'}
           </button>
         </div>
       </div>
 
-      {/* Pipeline Visualizer */}
-      <div className="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md overflow-x-auto">
-        <h3 className="font-label-md text-label-md text-on-surface uppercase font-bold">Pipeline Status</h3>
-        <div className="flex items-center min-w-max py-sm">
+      {/* Pipeline Status */}
+      <div className="bg-[#181c22] border border-[#30363d] rounded p-6 flex flex-col gap-4 overflow-x-auto">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8b949e]">Pipeline Status</h3>
+        <div className="flex items-center min-w-max py-2">
           {workflowNodes.map((node, idx) => {
             const isCompleted = report !== null || activeWorkflowNode > idx;
             const isCurrent = activeWorkflowNode === idx;
 
             return (
               <React.Fragment key={node.id}>
-                <div className="flex items-center gap-xs">
+                <div className="flex items-center gap-2">
                   {isCompleted ? (
-                    <div className="h-6 w-6 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center">
-                      <span className="material-symbols-outlined text-secondary text-[14px]">check</span>
+                    <div className="h-6 w-6 rounded-full bg-[#7bdb80]/20 border border-[#7bdb80] flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[#7bdb80] text-[14px]">check</span>
                     </div>
                   ) : isCurrent ? (
-                    <div className="h-6 w-6 rounded-full bg-primary/20 border border-primary flex items-center justify-center animate-pulse">
-                      <span className="material-symbols-outlined text-primary text-[14px]">sync</span>
+                    <div className="h-6 w-6 rounded-full bg-[#8957e5]/20 border border-[#8957e5] flex items-center justify-center animate-pulse">
+                      <span className="material-symbols-outlined text-[#d3bbff] text-[14px]">sync</span>
                     </div>
                   ) : (
-                    <div className="h-6 w-6 rounded-full bg-surface-variant border border-outline-variant flex items-center justify-center">
-                      <span className="material-symbols-outlined text-outline-variant text-[14px]">pending</span>
+                    <div className="h-6 w-6 rounded-full bg-[#262a31] border border-[#30363d] flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[#8b949e] text-[14px]">pending</span>
                     </div>
                   )}
-                  <span className={`font-code text-body-sm ${isCompleted || isCurrent ? 'text-on-surface font-bold' : 'text-on-surface-variant opacity-60'}`}>
+                  <span className={`font-mono text-xs ${isCompleted || isCurrent ? 'text-[#dfe2eb] font-semibold' : 'text-[#8b949e]'}`}>
                     {node.label}
                   </span>
                 </div>
                 {idx < workflowNodes.length - 1 && (
-                  <div className={`w-8 h-px mx-sm ${isCompleted ? 'bg-secondary' : 'bg-outline-variant'}`}></div>
+                  <div className={`w-8 h-px mx-3 ${isCompleted ? 'bg-[#7bdb80]' : 'bg-[#30363d]'}`}></div>
                 )}
               </React.Fragment>
             );
@@ -157,37 +150,37 @@ export const MigrationAnalyzer: React.FC = () => {
 
       {/* Migration Report */}
       {report && (
-        <div className="bg-surface-container-low border border-outline-variant rounded flex flex-col animate-fadeIn">
-          <div className="border-b border-outline-variant bg-surface-variant p-sm flex justify-between items-center">
-            <h3 className="font-label-md text-label-md text-on-surface font-bold">MIGRATION REPORT</h3>
-            <span className="font-code text-body-sm text-secondary bg-secondary-container/20 border border-secondary px-sm py-xs rounded font-bold">
+        <div className="bg-[#181c22] border border-[#30363d] rounded flex flex-col animate-fadeIn overflow-hidden">
+          <div className="border-b border-[#30363d] bg-[#1c2026] px-6 py-3 flex justify-between items-center">
+            <h3 className="text-xs font-semibold tracking-wider text-[#dfe2eb]">MIGRATION REPORT</h3>
+            <span className="font-mono text-xs text-[#7bdb80] bg-[#7bdb80]/15 border border-[#7bdb80]/30 px-2.5 py-0.5 rounded font-semibold">
               UPGRADE AVAILABLE: {report.current_version} → {report.target_version || '15.6.0'}
             </span>
           </div>
 
-          <div className="p-md flex flex-col gap-lg">
+          <div className="p-6 flex flex-col gap-6">
             {report.breaking_changes.map((bc, idx) => (
-              <div key={idx} className="flex flex-col gap-md border-b border-outline-variant/60 pb-md last:border-0 last:pb-0">
-                <div className="flex flex-col gap-xs">
-                  <h4 className="font-headline-md text-headline-md text-error flex items-center gap-sm font-bold">
-                    <span className="material-symbols-outlined">warning</span>
+              <div key={idx} className="flex flex-col gap-4 border-b border-[#30363d]/60 pb-6 last:border-0 last:pb-0">
+                <div className="flex flex-col gap-2">
+                  <h4 className="text-lg font-bold text-[#ffb4ab] flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[20px]">warning</span>
                     Breaking Change
                   </h4>
-                  <p className="font-code text-body-lg text-on-surface bg-surface border border-outline-variant p-sm rounded border-l-4 border-l-error font-bold">
+                  <p className="font-mono text-sm text-[#dfe2eb] bg-[#10141a] border border-[#30363d] p-3 rounded border-l-4 border-l-[#da3633] font-semibold">
                     {bc.title}
                   </p>
-                  <p className="font-mono text-xs text-on-surface-variant mt-1">
+                  <p className="text-xs text-[#8b949e] leading-relaxed">
                     {bc.summary}
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-sm">
-                  <span className="font-label-md text-label-md text-on-surface-variant font-bold">OFFICIAL SOURCE:</span>
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">OFFICIAL SOURCE:</span>
                   <a
                     href={bc.source_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-code text-body-sm text-primary hover:underline flex items-center gap-xs w-max"
+                    className="font-mono text-xs text-[#d3bbff] hover:underline flex items-center gap-1.5 w-max"
                   >
                     <span className="material-symbols-outlined text-[16px]">menu_book</span>
                     {bc.source_url.replace('https://github.com/stripe/stripe-python/', '')}
@@ -195,11 +188,11 @@ export const MigrationAnalyzer: React.FC = () => {
                 </div>
 
                 {bc.search_hints.length > 0 && (
-                  <div className="flex flex-col gap-sm">
-                    <span className="font-label-md text-label-md text-on-surface-variant font-bold">SEARCH HINTS:</span>
-                    <div className="flex flex-wrap gap-sm font-code text-body-sm">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">SEARCH HINTS:</span>
+                    <div className="flex flex-wrap gap-2 font-mono text-xs">
                       {bc.search_hints.map((hint, hIdx) => (
-                        <span key={hIdx} className="bg-surface border border-outline-variant px-sm py-xs rounded text-on-surface font-bold">
+                        <span key={hIdx} className="bg-[#10141a] border border-[#30363d] px-2.5 py-1 rounded text-[#dfe2eb]">
                           {hint}
                         </span>
                       ))}
@@ -213,11 +206,11 @@ export const MigrationAnalyzer: React.FC = () => {
       )}
 
       {/* Workflow Warnings Panel */}
-      <div className="bg-error-container/10 border border-error/50 rounded p-md flex gap-md">
-        <span className="material-symbols-outlined text-error text-2xl mt-1">error</span>
-        <div className="flex flex-col gap-sm">
-          <h4 className="font-headline-md text-headline-md text-error font-bold">Workflow Warnings</h4>
-          <ul className="font-code text-body-md text-on-surface list-disc pl-md flex flex-col gap-xs">
+      <div className="bg-[#93000a]/15 border border-[#da3633]/40 rounded p-5 flex gap-4 items-start">
+        <span className="material-symbols-outlined text-[#ffb4ab] text-2xl shrink-0 mt-0.5">error</span>
+        <div className="flex flex-col gap-2">
+          <h4 className="text-base font-bold text-[#ffb4ab]">Workflow Warnings</h4>
+          <ul className="text-xs text-[#dfe2eb] list-disc pl-4 flex flex-col gap-1 leading-relaxed">
             <li>Manual verification required for dynamic dict comprehensions handling Stripe objects.</li>
             <li>Automated fixers may skip complex nested dictionary destructuring.</li>
           </ul>

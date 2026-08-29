@@ -84,22 +84,22 @@ export const TrueForgeWorkflow: React.FC = () => {
   ];
 
   return (
-    <div className="w-full flex flex-col gap-lg animate-fadeIn">
+    <div className="w-full flex flex-col gap-6 animate-fadeIn">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-md">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#30363d] pb-6">
         <div>
-          <h1 className="font-headline-lg text-headline-lg text-on-surface mb-xs flex items-center gap-sm">
-            <span className="material-symbols-outlined text-primary text-[32px]">route</span>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#dfe2eb] mb-1.5 flex items-center gap-2.5">
+            <span className="material-symbols-outlined text-[#d3bbff] text-[32px]">route</span>
             TrueForge Orchestration &amp; Human Gate
           </h1>
-          <div className="font-code text-body-sm text-on-surface-variant">
+          <div className="text-xs text-[#8b949e]">
             Full execution trace of session 01m14g71c8zg1fpz5fe84n2by2 and human merge checkpoint.
           </div>
         </div>
 
         <button
           onClick={() => setApprovalStatus('pending')}
-          className="bg-surface text-on-surface font-label-md text-label-md px-4 py-2 border border-outline-variant rounded hover:bg-surface-variant transition-colors flex items-center gap-2 uppercase cursor-pointer"
+          className="bg-[#181c22] text-[#dfe2eb] text-xs font-semibold px-4 py-2 border border-[#30363d] rounded hover:bg-[#262a31] hover:border-[#8b949e] transition flex items-center gap-2 uppercase cursor-pointer"
         >
           <span className="material-symbols-outlined text-[18px]">restart_alt</span>
           Reset Checkpoint
@@ -107,58 +107,58 @@ export const TrueForgeWorkflow: React.FC = () => {
       </div>
 
       {/* Human Approval Checkpoint Card */}
-      <div className="bg-surface-container-low border border-primary/40 rounded p-md flex flex-col gap-md">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
-          <div className="flex items-center gap-md">
-            <div className="w-10 h-10 rounded bg-primary-container/20 border border-primary flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[24px]">verified_user</span>
+      <div className="bg-[#181c22] border border-[#8957e5]/40 rounded p-6 flex flex-col gap-5 shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded bg-[#8957e5]/20 border border-[#8957e5] flex items-center justify-center text-[#d3bbff] shrink-0">
+              <span className="material-symbols-outlined text-[28px]">verified_user</span>
             </div>
             <div>
-              <div className="flex items-center gap-sm">
-                <h3 className="font-headline-md text-body-lg text-on-surface font-bold">Human Approval Policy Checkpoint</h3>
-                <span className={`px-2 py-0.5 rounded text-[11px] font-code font-bold uppercase ${
+              <div className="flex items-center gap-2.5">
+                <h3 className="text-base font-bold text-[#dfe2eb]">Human Approval Policy Checkpoint</h3>
+                <span className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-bold uppercase ${
                   approvalStatus === 'pending'
-                    ? 'bg-tertiary-container/20 text-tertiary border border-tertiary-container animate-pulse'
+                    ? 'bg-[#da3633]/20 text-[#ffb4ac] border border-[#da3633] animate-pulse'
                     : approvalStatus === 'allowed'
-                    ? 'bg-secondary-container/20 text-secondary border border-secondary'
-                    : 'bg-error-container/20 text-error border border-error'
+                    ? 'bg-[#7bdb80]/20 text-[#7bdb80] border border-[#7bdb80]'
+                    : 'bg-[#da3633]/20 text-[#ffb4ac] border border-[#da3633]'
                 }`}>
                   {approvalStatus}
                 </span>
               </div>
-              <p className="font-code text-body-sm text-on-surface-variant mt-1">
-                Action: <code className="text-primary font-bold">merge_pull_request</code> to protected branch <code className="text-on-surface font-bold">main</code>
+              <p className="text-xs text-[#8b949e] mt-1 font-mono">
+                Action: <code className="text-[#d3bbff] font-bold">merge_pull_request</code> to protected branch <code className="text-[#dfe2eb] font-bold">main</code>
               </p>
             </div>
           </div>
 
           {/* Action Buttons */}
           {approvalStatus === 'pending' ? (
-            <div className="flex items-center gap-sm">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setApprovalStatus('allowed')}
-                className="bg-secondary-container text-on-secondary-container font-label-md text-label-md px-4 py-2 rounded font-bold hover:opacity-90 transition-opacity flex items-center gap-xs cursor-pointer shadow-sm"
+                className="bg-[#007124] text-white text-xs font-bold px-5 py-2.5 rounded hover:bg-[#005319] transition flex items-center gap-2 cursor-pointer shadow-sm"
               >
                 <span className="material-symbols-outlined text-[18px]">check_circle</span>
                 Allow &amp; Merge PR
               </button>
               <button
                 onClick={() => setApprovalStatus('denied')}
-                className="bg-surface text-error border border-error/50 font-label-md text-label-md px-4 py-2 rounded font-bold hover:bg-error-container/20 transition-colors flex items-center gap-xs cursor-pointer"
+                className="bg-[#10141a] text-[#ffb4ac] border border-[#da3633] text-xs font-bold px-4 py-2.5 rounded hover:bg-[#da3633]/20 transition flex items-center gap-2 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">cancel</span>
                 Deny
               </button>
             </div>
           ) : (
-            <div className="font-code text-body-sm font-bold">
+            <div className="font-mono text-xs font-bold">
               {approvalStatus === 'allowed' ? (
-                <span className="text-secondary flex items-center gap-1">
+                <span className="text-[#7bdb80] flex items-center gap-1.5 bg-[#7bdb80]/15 px-3 py-1.5 rounded border border-[#7bdb80]/30">
                   <span className="material-symbols-outlined text-[18px]">call_merge</span>
                   Merged as commit 7f29dbf
                 </span>
               ) : (
-                <span className="text-error flex items-center gap-1">
+                <span className="text-[#ffb4ac] flex items-center gap-1.5 bg-[#da3633]/15 px-3 py-1.5 rounded border border-[#da3633]/30">
                   <span className="material-symbols-outlined text-[18px]">lock</span>
                   Merge Denied; main branch preserved
                 </span>
@@ -168,11 +168,11 @@ export const TrueForgeWorkflow: React.FC = () => {
         </div>
 
         {/* Inspected Tool Arguments */}
-        <div className="bg-surface-container-lowest p-sm rounded border border-outline-variant font-code text-body-sm text-on-surface-variant">
-          <div className="text-outline text-[11px] mb-1 font-bold uppercase">
-            Tool Arguments Inspected by TrueForge:
+        <div className="bg-[#10141a] p-4 rounded border border-[#30363d] font-mono text-xs text-[#8b949e]">
+          <div className="text-[#8b949e] text-[11px] mb-2 font-bold uppercase tracking-wider">
+            Tool Arguments Inspected by TrueForge Policy Gate:
           </div>
-          <pre className="text-primary leading-relaxed">
+          <pre className="text-[#d3bbff] leading-relaxed">
 {`{
   "owner": "ChiragSW",
   "repo": "driftfix-4sum",
@@ -185,14 +185,14 @@ export const TrueForgeWorkflow: React.FC = () => {
       </div>
 
       {/* Pinned Skill Rules */}
-      <div className="bg-surface-container-low border border-outline-variant rounded p-md">
-        <h3 className="font-label-md text-label-md text-on-surface uppercase font-bold mb-sm flex items-center gap-xs">
-          <span className="material-symbols-outlined text-[16px] text-primary">security</span>
+      <div className="bg-[#181c22] border border-[#30363d] rounded p-6 shadow-sm">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#dfe2eb] mb-4 flex items-center gap-2">
+          <span className="material-symbols-outlined text-[16px] text-[#d3bbff]">security</span>
           Pinned TrueForge Skill Rules (agent/SKILL.md)
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-xs font-code text-body-sm text-on-surface-variant">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 font-mono text-xs text-[#8b949e]">
           {skillRules.map((r, idx) => (
-            <div key={idx} className="p-xs bg-surface-container-lowest rounded border border-outline-variant/50">
+            <div key={idx} className="p-2.5 bg-[#10141a] rounded border border-[#30363d]/60 leading-relaxed">
               {r}
             </div>
           ))}
@@ -200,38 +200,38 @@ export const TrueForgeWorkflow: React.FC = () => {
       </div>
 
       {/* Execution Trace Timeline */}
-      <div className="bg-surface-container-low border border-outline-variant rounded p-md flex flex-col gap-md">
-        <h3 className="font-label-md text-label-md text-on-surface uppercase font-bold flex items-center gap-xs">
-          <span className="material-symbols-outlined text-[16px] text-primary">timeline</span>
+      <div className="bg-[#181c22] border border-[#30363d] rounded p-6 flex flex-col gap-4 shadow-sm">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#dfe2eb] flex items-center gap-2">
+          <span className="material-symbols-outlined text-[16px] text-[#d3bbff]">timeline</span>
           TrueForge Execution Trace
         </h3>
 
-        <div className="flex flex-col gap-sm">
+        <div className="flex flex-col gap-3">
           {events.map((evt, idx) => (
-            <div key={evt.id} className="flex items-start gap-md p-sm rounded bg-surface-container-lowest border border-outline-variant font-code">
-              <div className="mt-1 shrink-0">
+            <div key={evt.id} className="flex items-start gap-4 p-4 rounded bg-[#10141a] border border-[#30363d]">
+              <div className="mt-0.5 shrink-0">
                 {evt.status === 'success' ? (
-                  <span className="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+                  <span className="material-symbols-outlined text-[#7bdb80] text-[20px]">check_circle</span>
                 ) : evt.status === 'pending' ? (
-                  <span className="material-symbols-outlined text-tertiary text-[18px] animate-pulse">warning</span>
+                  <span className="material-symbols-outlined text-[#ffb4ac] text-[20px] animate-pulse">warning</span>
                 ) : evt.status === 'denied' ? (
-                  <span className="material-symbols-outlined text-error text-[18px]">cancel</span>
+                  <span className="material-symbols-outlined text-[#ffb4ab] text-[20px]">cancel</span>
                 ) : (
-                  <span className="text-primary font-bold text-body-sm">{idx + 1}</span>
+                  <span className="text-[#d3bbff] font-bold font-mono text-xs">{idx + 1}</span>
                 )}
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
-                  <div className="flex items-center gap-sm">
-                    <span className="text-body-sm font-bold text-on-surface">{evt.title}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container text-outline">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-[#dfe2eb]">{evt.title}</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1c2026] text-[#8b949e] border border-[#30363d]">
                       {evt.actor}
                     </span>
                   </div>
-                  <span className="text-[10px] text-outline">{evt.timestamp}</span>
+                  <span className="text-[10px] font-mono text-[#8b949e]">{evt.timestamp}</span>
                 </div>
-                <p className="text-body-sm text-on-surface-variant leading-relaxed">{evt.details}</p>
+                <p className="text-xs text-[#8b949e] leading-relaxed font-mono">{evt.details}</p>
               </div>
             </div>
           ))}

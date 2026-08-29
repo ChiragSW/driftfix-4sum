@@ -4,13 +4,17 @@
 
 @layer base {
   body {
-    background-color: #0d1117;
+    background-color: #10141a;
     color: #dfe2eb;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif;
+  }
+
+  code, pre, .font-mono, .font-code {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
@@ -30,21 +34,21 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbar for brutalist feel */
+/* Custom scrollbar for modern developer feel */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: #10141a;
-  border-left: 1px solid #4a4453;
+  border-left: 1px solid #30363d;
 }
 ::-webkit-scrollbar-thumb {
-  background: #4a4453;
-  border-radius: 0;
+  background: #30363d;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #958d9f;
+  background: #4a4453;
 }
 
 .code-added {

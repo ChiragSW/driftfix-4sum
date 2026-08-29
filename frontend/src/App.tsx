@@ -12,17 +12,17 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
 
   return (
-    <div className="font-body-md text-body-md antialiased min-h-screen flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
-      {/* TopNavBar */}
+    <div className="min-h-screen flex flex-col bg-[#10141a] text-[#dfe2eb] w-full">
+      {/* Top Header */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Main Layout Area */}
-      <div className="flex flex-1 max-w-container-max mx-auto w-full">
-        {/* SideNavBar */}
+      {/* Main Container Layout */}
+      <div className="flex flex-1 w-full max-w-[1600px] mx-auto">
+        {/* Pinned Left Sidebar */}
         <SideRepoBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {/* Main Content Area */}
-        <main className="flex-1 lg:ml-[260px] p-md md:p-lg w-full pb-16">
+        <main className="flex-1 p-6 md:p-8 lg:p-10 w-full min-w-0 flex flex-col justify-start">
           {activeTab === 'overview' && <Overview setActiveTab={setActiveTab} />}
           {activeTab === 'analyzer' && <MigrationAnalyzer />}
           {activeTab === 'scanner' && <CodeScanner />}
@@ -33,18 +33,12 @@ export const App: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-surface dark:bg-surface border-t border-outline-variant full-width mt-auto z-50">
-        <div className="flex flex-col sm:flex-row justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto gap-2">
-          <span className="font-code text-body-sm font-bold text-on-surface-variant">
-            DriftFix • Team 4Sum • Sourced Stripe Python Migration Engine
-          </span>
-          <div className="flex gap-md font-code text-body-sm">
-            <span className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-              MIT Licensed
-            </span>
-            <span className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-              TrueForge 0.1.4 Verified Harness
-            </span>
+      <footer className="bg-[#10141a] border-t border-[#30363d] w-full mt-auto py-3 shrink-0">
+        <div className="flex flex-col sm:flex-row justify-between items-center w-full px-6 max-w-[1600px] mx-auto text-xs font-mono text-[#8b949e] gap-2">
+          <span>DriftFix • Team 4Sum • Sourced Stripe Python Migration Engine</span>
+          <div className="flex gap-4">
+            <span className="hover:text-[#d3bbff] transition-colors cursor-pointer">MIT Licensed</span>
+            <span className="hover:text-[#d3bbff] transition-colors cursor-pointer">TrueForge 0.1.4 Verified Harness</span>
           </div>
         </div>
       </footer>

@@ -16,34 +16,34 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <header className="bg-surface dark:bg-surface border-b border-outline-variant full-width top-0 z-50 sticky">
-      <div className="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
-        <div className="flex items-center gap-md">
+    <header className="bg-[#10141a] border-b border-[#30363d] sticky top-0 z-50 w-full h-16 shrink-0">
+      <div className="flex justify-between items-center w-full px-6 h-full max-w-[1600px] mx-auto">
+        <div className="flex items-center gap-8">
           {/* Logo */}
-          <div 
+          <button
             onClick={() => setActiveTab('overview')} 
-            className="cursor-pointer flex items-center"
+            className="flex items-center gap-3 cursor-pointer group focus:outline-none"
           >
             <img 
               src="/assets/logo.png" 
               alt="DriftFix Official Logo" 
-              className="h-8 w-auto object-contain"
+              className="h-8 w-auto object-contain rounded"
             />
-          </div>
+          </button>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex gap-md h-full items-end pt-4">
+          <nav className="hidden md:flex gap-6 h-full items-end pb-0">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={
+                  className={`text-sm font-medium transition-all duration-150 pb-4 border-b-2 px-1 focus:outline-none ${
                     isActive
-                      ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-2 opacity-90 transition-all duration-150 whitespace-nowrap'
-                      : 'font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150 whitespace-nowrap px-1'
-                  }
+                      ? 'text-[#d3bbff] border-[#8957e5] font-semibold'
+                      : 'text-[#8b949e] border-transparent hover:text-[#dfe2eb] hover:border-[#30363d]'
+                  }`}
                 >
                   {item.label}
                 </button>
@@ -52,42 +52,46 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
           </nav>
         </div>
 
-        {/* Right Status */}
-        <div className="flex items-center gap-sm font-label-md text-label-md text-on-surface-variant">
-          <span className="font-mono">v0.1.0</span>
-          <span 
-            className="material-symbols-outlined text-[18px] cursor-pointer hover:text-primary transition-colors" 
-            title="Codex Provider Ready"
-          >
-            check_circle
+        {/* Right Status Controls */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-mono text-[#8b949e] px-2.5 py-1 bg-[#181c22] border border-[#30363d] rounded">
+            v0.1.0
           </span>
-          <span 
-            className="material-symbols-outlined text-[18px] cursor-pointer hover:text-primary transition-colors" 
-            title="DriftFix MCP Connected"
-          >
-            database
-          </span>
-          <span 
-            className="material-symbols-outlined text-[18px] cursor-pointer hover:text-primary transition-colors" 
-            title="Daytona Harness Linked"
-          >
-            link
-          </span>
+          <div className="flex items-center gap-1.5 text-[#8b949e]">
+            <button 
+              className="p-1 rounded hover:text-[#7bdb80] hover:bg-[#262a31] transition"
+              title="Codex Provider (Ready)"
+            >
+              <span className="material-symbols-outlined text-[18px]">check_circle</span>
+            </button>
+            <button 
+              className="p-1 rounded hover:text-[#d3bbff] hover:bg-[#262a31] transition"
+              title="DriftFix MCP (Connected)"
+            >
+              <span className="material-symbols-outlined text-[18px]">database</span>
+            </button>
+            <button 
+              className="p-1 rounded hover:text-[#d3bbff] hover:bg-[#262a31] transition"
+              title="Daytona Sandbox (Linked)"
+            >
+              <span className="material-symbols-outlined text-[18px]">link</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Nav Bar */}
-      <div className="md:hidden flex overflow-x-auto border-t border-outline-variant/60 bg-surface-container-lowest px-2 py-1 gap-2">
+      <div className="md:hidden flex overflow-x-auto border-t border-[#30363d] bg-[#181c22] px-4 py-2 gap-2">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`font-label-md text-label-md px-2 py-1 rounded-sm whitespace-nowrap transition ${
+              className={`text-xs px-3 py-1.5 rounded whitespace-nowrap font-medium transition ${
                 isActive
-                  ? 'bg-primary-container text-on-primary-container font-bold'
-                  : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-[#8957e5] text-white font-semibold'
+                  : 'text-[#8b949e] hover:text-[#dfe2eb]'
               }`}
             >
               {item.label}

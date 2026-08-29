@@ -63,76 +63,82 @@ export const CodexPlayground: React.FC = () => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-lg animate-fadeIn">
+    <div className="w-full flex flex-col gap-6 animate-fadeIn">
       {/* Header matching Stitch Screen 6 */}
-      <section className="flex flex-col gap-md">
-        <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">Local Codex Provider Playground</h1>
+      <section className="flex flex-col gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#dfe2eb]">
+          Local Codex Provider Playground
+        </h1>
 
         {/* Top Adapter Status Bar */}
-        <div className="bg-surface border border-outline-variant rounded p-sm flex items-center gap-md w-fit">
-          <div className="flex items-center gap-xs">
-            <span className="font-label-md text-on-surface-variant uppercase font-bold">Adapter:</span>
-            <span className="font-code text-body-md text-primary font-bold">http://127.0.0.1:8765/v1</span>
+        <div className="bg-[#181c22] border border-[#30363d] rounded p-4 flex items-center gap-4 w-fit flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">Adapter:</span>
+            <span className="font-mono text-sm text-[#d3bbff] font-bold">http://127.0.0.1:8765/v1</span>
           </div>
-          <div className="w-px h-4 bg-outline-variant"></div>
-          <div className="flex items-center gap-xs">
-            <span className="font-label-md text-on-surface-variant uppercase font-bold">Model:</span>
-            <span className="font-code text-body-md text-on-surface font-bold">
+          <div className="w-px h-4 bg-[#30363d] hidden sm:block"></div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wider">Model:</span>
+            <span className="font-mono text-sm text-[#dfe2eb] font-semibold">
               {models.length > 0 ? models[0].id : 'codex-subscription'}
             </span>
           </div>
-          <div className="w-px h-4 bg-outline-variant"></div>
-          <div className="flex items-center gap-xs">
-            <span className="w-2 h-2 rounded-full bg-secondary"></span>
-            <span className="font-label-md text-secondary uppercase font-bold">
+          <div className="w-px h-4 bg-[#30363d] hidden sm:block"></div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#7bdb80]"></span>
+            <span className="text-xs font-semibold text-[#7bdb80] uppercase tracking-wider">
               {health?.authentication || 'Ready'}
             </span>
           </div>
         </div>
 
         {/* 2-Column Interface */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-md">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* Left: Request Pipeline */}
-          <div className="bg-surface border border-outline-variant rounded flex flex-col h-[500px]">
-            <div className="border-b border-outline-variant p-sm bg-surface-container-low flex justify-between items-center">
-              <span className="font-label-md text-on-surface uppercase font-bold">Request Pipeline</span>
+          <div className="bg-[#181c22] border border-[#30363d] rounded flex flex-col h-[520px] shadow-sm">
+            <div className="border-b border-[#30363d] px-5 py-3.5 bg-[#1c2026] flex justify-between items-center">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#dfe2eb]">Request Pipeline</span>
               <button
                 onClick={handleSend}
                 disabled={loading}
-                className="bg-primary-container text-on-primary-container px-sm py-xs rounded font-label-md hover:opacity-90 transition-opacity cursor-pointer font-bold disabled:opacity-50"
+                className="bg-[#8957e5] text-white px-4 py-1.5 rounded text-xs font-semibold hover:bg-[#713dcc] transition cursor-pointer disabled:opacity-50 shadow-sm"
               >
                 {loading ? 'Executing...' : 'Execute'}
               </button>
             </div>
 
-            <div className="p-sm flex-1 flex flex-col gap-sm overflow-hidden">
-              <label className="font-label-md text-on-surface-variant font-bold">System Prompt</label>
-              <textarea
-                value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
-                className="w-full bg-background border border-outline-variant text-on-surface font-code text-body-sm p-sm h-24 resize-none rounded focus:border-primary outline-none"
-                placeholder="Enter system instructions..."
-              />
+            <div className="p-5 flex-1 flex flex-col gap-4 overflow-hidden">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-[#8b949e]">System Prompt</label>
+                <textarea
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  className="w-full bg-[#10141a] border border-[#30363d] text-[#dfe2eb] font-mono text-xs p-3 h-20 resize-none rounded focus:border-[#8957e5] outline-none"
+                  placeholder="Enter system instructions..."
+                />
+              </div>
 
-              <label className="font-label-md text-on-surface-variant font-bold">User Prompt</label>
-              <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="w-full bg-background border border-outline-variant text-on-surface font-code text-body-sm p-sm flex-1 resize-none rounded focus:border-primary outline-none"
-              />
+              <div className="flex-1 flex flex-col gap-1.5 overflow-hidden">
+                <label className="text-xs font-semibold text-[#8b949e]">User Prompt</label>
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="w-full bg-[#10141a] border border-[#30363d] text-[#dfe2eb] font-mono text-xs p-3 flex-1 resize-none rounded focus:border-[#8957e5] outline-none"
+                />
+              </div>
 
-              <div className="mt-auto">
+              <div className="mt-auto pt-2 border-t border-[#30363d]/60">
                 <div
                   onClick={() => setShowTools(!showTools)}
-                  className="flex items-center justify-between cursor-pointer p-xs hover:bg-surface-variant rounded transition-colors"
+                  className="flex items-center justify-between cursor-pointer py-1 text-xs font-semibold text-[#8b949e] hover:text-[#dfe2eb] transition"
                 >
-                  <span className="font-label-md text-on-surface-variant font-bold">Tool Definitions ({sampleTools.length})</span>
-                  <span className="material-symbols-outlined text-on-surface-variant text-sm">
+                  <span>Tool Definitions ({sampleTools.length})</span>
+                  <span className="material-symbols-outlined text-sm">
                     {showTools ? 'expand_less' : 'expand_more'}
                   </span>
                 </div>
                 {showTools && (
-                  <div className="mt-xs border border-outline-variant bg-background p-xs rounded font-code text-body-sm text-on-surface-variant h-32 overflow-y-auto">
+                  <div className="mt-2 border border-[#30363d] bg-[#10141a] p-3 rounded font-mono text-xs text-[#8b949e] h-28 overflow-y-auto">
                     <pre><code>{JSON.stringify(sampleTools, null, 2)}</code></pre>
                   </div>
                 )}
@@ -141,13 +147,13 @@ export const CodexPlayground: React.FC = () => {
           </div>
 
           {/* Right: Structured Response */}
-          <div className="bg-surface border border-outline-variant rounded flex flex-col h-[500px]">
-            <div className="border-b border-outline-variant p-sm bg-surface-container-low flex justify-between items-center">
-              <span className="font-label-md text-on-surface uppercase font-bold">Structured Response</span>
-              <span className="font-label-md text-secondary font-bold">200 OK - 420ms</span>
+          <div className="bg-[#181c22] border border-[#30363d] rounded flex flex-col h-[520px] shadow-sm">
+            <div className="border-b border-[#30363d] px-5 py-3.5 bg-[#1c2026] flex justify-between items-center">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#dfe2eb]">Structured Response</span>
+              <span className="font-mono text-xs text-[#7bdb80] font-semibold">200 OK - 420ms</span>
             </div>
-            <div className="p-sm flex-1 overflow-y-auto bg-background m-xs border border-outline-variant rounded font-code text-body-sm leading-relaxed">
-              <pre className="text-on-surface whitespace-pre-wrap p-sm">
+            <div className="p-4 flex-1 overflow-y-auto bg-[#10141a] m-3 border border-[#30363d] rounded font-mono text-xs leading-relaxed">
+              <pre className="text-[#dfe2eb] whitespace-pre-wrap">
                 <code>
                   {JSON.stringify(response, null, 2)}
                 </code>
