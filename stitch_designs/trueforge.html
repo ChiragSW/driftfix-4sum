@@ -1,0 +1,268 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TrueForge Workflow &amp; Codex Provider</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#ccc3d6",
+                      "on-primary-fixed-variant": "#591db3",
+                      "inverse-primary": "#713dcc",
+                      "surface-dim": "#10141a",
+                      "primary-container": "#8957e5",
+                      "secondary-fixed-dim": "#7bdb80",
+                      "background": "#10141a",
+                      "on-secondary-fixed": "#002106",
+                      "tertiary-fixed": "#ffdad6",
+                      "on-secondary": "#00390e",
+                      "primary": "#d3bbff",
+                      "outline": "#958d9f",
+                      "error-container": "#93000a",
+                      "surface-bright": "#353940",
+                      "on-surface": "#dfe2eb",
+                      "tertiary-fixed-dim": "#ffb4ac",
+                      "outline-variant": "#4a4453",
+                      "secondary-fixed": "#97f999",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-high": "#262a31",
+                      "inverse-surface": "#dfe2eb",
+                      "tertiary": "#ffb4ac",
+                      "inverse-on-surface": "#2d3137",
+                      "on-primary": "#3f008d",
+                      "on-tertiary-fixed-variant": "#93000e",
+                      "surface": "#10141a",
+                      "primary-fixed": "#ebddff",
+                      "on-error": "#690005",
+                      "on-tertiary-container": "#fffdff",
+                      "on-background": "#dfe2eb",
+                      "error": "#ffb4ab",
+                      "surface-container": "#1c2026",
+                      "on-primary-fixed": "#250059",
+                      "on-primary-container": "#fffdff",
+                      "tertiary-container": "#da3633",
+                      "surface-variant": "#31353c",
+                      "secondary": "#7bdb80",
+                      "surface-container-lowest": "#0a0e14",
+                      "on-secondary-container": "#91f294",
+                      "primary-fixed-dim": "#d3bbff",
+                      "secondary-container": "#007124",
+                      "on-tertiary-fixed": "#410003",
+                      "surface-tint": "#d3bbff",
+                      "surface-container-highest": "#31353c",
+                      "on-tertiary": "#690007",
+                      "surface-container-low": "#181c22",
+                      "on-secondary-fixed-variant": "#005319"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "gutter": "16px",
+                      "container-max": "1280px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Space Grotesk", "sans-serif"],
+                      "body-lg": ["JetBrains Mono", "monospace"],
+                      "display": ["Space Grotesk", "sans-serif"],
+                      "label-md": ["JetBrains Mono", "monospace"],
+                      "headline-md": ["Space Grotesk", "sans-serif"],
+                      "body-sm": ["JetBrains Mono", "monospace"],
+                      "code": ["JetBrains Mono", "monospace"],
+                      "body-md": ["JetBrains Mono", "monospace"]
+              },
+              "fontSize": {
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "body-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                      "code": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .brutalist-border {
+            border: 1px solid #30363d;
+        }
+        .brutalist-input:focus {
+            outline: none;
+            border-color: #8957e5;
+            box-shadow: 0 0 0 2px rgba(137, 87, 229, 0.2);
+        }
+        .diff-add {
+            background-color: rgba(123, 219, 128, 0.15);
+        }
+        .diff-remove {
+            background-color: rgba(218, 54, 51, 0.15);
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface border-b border-outline-variant docked full-width top-0 z-50">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-on-surface tracking-tighter">DRIFTFIX</span>
+<div class="hidden md:flex gap-md">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 duration-150 px-2 py-1 rounded" href="#">Overview &amp; Docs</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 duration-150 px-2 py-1 rounded" href="#">Migration Analyzer</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 duration-150 px-2 py-1 rounded" href="#">Impact Scout &amp; Fixer</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 duration-150 px-2 py-1 rounded" href="#">Daytona Sandbox</a>
+<a class="text-primary border-b-2 border-primary pb-2 opacity-80 scale-95 px-2 py-1" href="#">Codex Provider</a>
+<a class="text-primary border-b-2 border-primary pb-2 opacity-80 scale-95 px-2 py-1" href="#">TrueForge Workflow</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<span class="font-label-md text-label-md text-on-surface-variant">v0.1.0</span>
+<div class="flex gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="check_circle">check_circle</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="database">database</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="link">link</span>
+</div>
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF2mZVLLWgAnivO3Eua0qfflkoBCc27R6Af4etWI8JFm0vo1HkpS8plgLVKZ4yf6b4wQJD9u3-PYRT--aFKVmOt2XcjeontsjeldRHpWrRLrtu3YifXqp6Wd6s4-AZYj4gn31UvGYQR1vZo2F2hUJdQJCmXBVfwM0XuWQDy1SAVWPu0VxQLbCxblxKDBdlnPfd5Sm8RuQ5BR9xjNfYb9pTLHCByyL1cF2h8BRFObo8lTjwmTfS336v3g" alt="DriftFix Official Logo" class="w-8 h-8 rounded object-contain">
+</div>
+</div>
+</nav>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant fixed left-0 top-16 h-full w-[260px] hidden lg:flex flex-col gap-xs p-sm z-40">
+<div class="p-sm flex items-center gap-sm mb-md">
+<img alt="DriftFix Org" class="w-10 h-10 rounded brutalist-border" data-alt="Abstract dark minimalist organization logo, sharp lines, terminal aesthetic, tech brutalism, small square format." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkv-1y7eQP4kEqpAeDoTjWLG_hDlFsK7oDzMoyqMudFxynDQmjaFjzcXPjq6DcOzcyx2kLMqUb2VDPiIt_D_7jYXrF7iEJoH-G-pyObW0vgB6qPhSzbOgFehsAhseZ1x7mM9bYrXGSJWPPPYNfSn-mQXwzEhltDGl8dVOAozLj04nVnToiagSf2FP1rLPcEFJez4A_0CHT2Tzbod4poDHAkRgmR9_PxfkhOt2n2j8H54kTVTELT9RXFg">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">driftfix-4sum</h2>
+<p class="font-code text-body-sm text-on-surface-variant truncate">Sourced Stripe Python Migration Engine</p>
+</div>
+</div>
+<a class="text-on-surface-variant hover:bg-surface-variant px-md py-sm transition-colors rounded flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+<span class="font-code text-body-sm">driftfix-4sum</span>
+</a>
+<a class="bg-primary-container text-on-primary-container font-bold border-l-2 border-primary px-md py-sm rounded flex items-center gap-sm scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="fork_right">fork_right</span>
+<span class="font-code text-body-sm">driftfix/stripe-v15.6.0</span>
+</a>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 lg:ml-[260px] mt-16 p-lg overflow-y-auto w-full max-w-container-max mx-auto bg-background">
+<!-- Section 1: Codex Provider Playground -->
+<section class="mb-xl flex flex-col gap-md">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Local Codex Provider Playground</h1>
+<div class="bg-surface border border-outline-variant rounded p-sm flex items-center gap-md brutalist-border w-fit">
+<div class="flex items-center gap-xs">
+<span class="font-label-md text-on-surface-variant uppercase">Adapter:</span>
+<span class="font-code text-body-md text-primary">http://127.0.0.1:8765/v1</span>
+</div>
+<div class="w-px h-4 bg-outline-variant"></div>
+<div class="flex items-center gap-xs">
+<span class="font-label-md text-on-surface-variant uppercase">Model:</span>
+<span class="font-code text-body-md text-on-surface">codex-subscription</span>
+</div>
+<div class="w-px h-4 bg-outline-variant"></div>
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-md text-secondary uppercase">Ready</span>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-md">
+<!-- Left: Request -->
+<div class="bg-surface border border-outline-variant rounded flex flex-col h-[500px]">
+<div class="border-b border-outline-variant p-sm bg-surface-container-low flex justify-between items-center">
+<span class="font-label-md text-on-surface uppercase">Request Pipeline</span>
+<button class="bg-primary-container text-on-primary-container px-sm py-xs rounded font-label-md hover:opacity-90 transition-opacity">Execute</button>
+</div>
+<div class="p-sm flex-1 flex flex-col gap-sm overflow-hidden">
+<label class="font-label-md text-on-surface-variant">System Prompt</label>
+<textarea class="w-full bg-background border border-outline-variant text-on-surface font-code text-body-sm p-sm brutalist-input h-24 resize-none rounded" placeholder="Enter system instructions..."></textarea>
+<label class="font-label-md text-on-surface-variant">User Prompt</label>
+<textarea class="w-full bg-background border border-outline-variant text-on-surface font-code text-body-sm p-sm brutalist-input flex-1 resize-none rounded">Upgrade demo_target to use latest Stripe API patterns, applying SKILL rules 1-4.</textarea>
+<div class="mt-auto">
+<div class="flex items-center justify-between cursor-pointer p-xs hover:bg-surface-variant rounded transition-colors" onclick="document.getElementById('tool-defs').classList.toggle('hidden')">
+<span class="font-label-md text-on-surface-variant">Tool Definitions (3)</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">expand_more</span>
+</div>
+<div class="hidden mt-xs border border-outline-variant bg-background p-xs rounded font-code text-body-sm text-on-surface-variant h-32 overflow-y-auto" id="tool-defs">
+<pre><code>[
+  {
+    "type": "function",
+    "function": {
+      "name": "analyze_drift",
+      "description": "Scans AST for deprecated usage"
+    }
+  }
+]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Structured Response -->
+<div class="bg-surface border border-outline-variant rounded flex flex-col h-[500px]">
+<div class="border-b border-outline-variant p-sm bg-surface-container-low flex justify-between items-center">
+<span class="font-label-md text-on-surface uppercase">Structured Response</span>
+<span class="font-label-md text-secondary">200 OK - 420ms</span>
+</div>
+<div class="p-sm flex-1 overflow-y-auto bg-background m-xs border border-outline-variant rounded">
+<pre class="font-code text-body-sm leading-relaxed p-sm"><code class="text-on-surface">
+<span class="text-outline-variant">{</span>
+  <span class="text-primary">"id"</span><span class="text-outline-variant">:</span> <span class="text-secondary">"cdx-resp-892a1"</span><span class="text-outline-variant">,</span>
+  <span class="text-primary">"object"</span><span class="text-outline-variant">:</span> <span class="text-secondary">"chat.completion"</span><span class="text-outline-variant">,</span>
+  <span class="text-primary">"choices"</span><span class="text-outline-variant">: [</span>
+    <span class="text-outline-variant">{</span>
+      <span class="text-primary">"message"</span><span class="text-outline-variant">: {</span>
+        <span class="text-primary">"role"</span><span class="text-outline-variant">:</span> <span class="text-secondary">"assistant"</span><span class="text-outline-variant">,</span>
+        <span class="text-primary">"content"</span><span class="text-outline-variant">:</span> <span class="text-secondary">"null"</span><span class="text-outline-variant">,</span>
+        <span class="text-primary">"tool_calls"</span><span class="text-outline-variant">: [</span>
+          <span class="text-outline-variant">{</span>
+            <span class="text-primary">"id"</span><span class="text-outline-variant">:</span> <span class="text-secondary">"call_9a8b7"</span><span class="text-outline-variant">,</span>
+            <span class="text-primary">"type"</span><span class="text-outline-variant">:</span> <span class="text-secondary">"function"</span><span class="text-outline-variant">,</span>
+            <span class="text-primary">"function"</span><span class="text-outline-variant">: {</span>
+              <span class="text-primary">"name"</span><span class="text-outline-variant">:</span> <span class="text-secondary">"patch_file"</span><span class="text-outline-variant">,</span>
+              <span class="text-primary">"arguments"</span><span class="text-outline-variant">:</span> <span class="text-secondary">"{\"file\": \"demo_target.py\", \"diff\": \"...\"}"</span>
+            <span class="text-outline-variant">}</span>
+          <span class="text-outline-variant">}</span>
+        <span class="text-outline-variant">]</span>
+      <span class="text-outline-variant">}</span>
+    <span class="text-outline-variant">}</span>
+  <span class="text-outline-variant">]</span>
+<span class="text-outline-variant">}</span>
+</code></pre>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface border-t border-outline-variant docked full-width bottom-0 z-50">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto gap-sm">
+<span class="font-code text-body-sm font-bold text-on-surface-variant">DriftFix • Team 4Sum • Sourced Stripe Python Migration Engine</span>
+<div class="flex gap-md">
+<a class="text-on-surface-variant font-code text-body-sm hover:text-primary transition-colors" href="#">MIT Licensed</a>
+<a class="text-on-surface-variant font-code text-body-sm hover:text-primary transition-colors" href="#">TrueForge 0.1.4 Verified Harness</a>
+</div>
+</div>
+</footer>
+
+
+</body></html>

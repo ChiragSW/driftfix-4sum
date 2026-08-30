@@ -57,6 +57,74 @@ def test_health_reports_missing_codex(monkeypatch) -> None:
     }
 
 
+def test_pull_reports_include_open_and_merged_only(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> list[dict[str, object]]:
+            common = {
+                "draft": False,
+                "body": "## Report\n\n7 tests passed.",
+                "user": {"login": "octocat"},
+                "head": {"ref": "feature"},
+                "base": {"ref": "main"},
+                "created_at": "2026-08-28T10:00:00Z",
+                "updated_at": "2026-08-29T10:00:00Z",
+            }
+            return [
+                {
+                    **common,
+                    "number": 3,
+                    "title": "Open report",
+                    "html_url": "https://github.com/example/project/pull/3",
+                    "state": "open",
+                    "merged_at": None,
+                },
+                {
+                    **common,
+                    "number": 2,
+                    "title": "Merged report",
+                    "html_url": "https://github.com/example/project/pull/2",
+                    "state": "closed",
+                    "merged_at": "2026-08-29T09:00:00Z",
+                },
+                {
+                    **common,
+                    "number": 1,
+                    "title": "Closed without merge",
+                    "html_url": "https://github.com/example/project/pull/1",
+                    "state": "closed",
+                    "merged_at": None,
+                },
+            ]
+
+    class FakeClient:
+        def get(self, url, *, headers, params):
+            captured.update(url=url, headers=headers, params=params)
+            return FakeResponse()
+
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setenv("DRIFTFIX_GITHUB_REPOSITORY", "example/project")
+    monkeypatch.setenv("GITHUB_TOKEN", "server-side-token")
+    monkeypatch.setattr(provider.httpx, "Client", lambda **_kwargs: FakeClient())
+
+    response = TestClient(provider.app).get("/api/pull-reports")
+
+    assert response.status_code == 200
+    assert [(item["number"], item["state"]) for item in response.json()] == [
+        (3, "open"),
+        (2, "merged"),
+    ]
+    assert captured["url"] == "https://api.github.com/repos/example/project/pulls"
+    assert captured["params"] == {"state": "all", "per_page": 100}
+    assert captured["headers"]["Authorization"] == "Bearer server-side-token"
+
+
 def test_codex_turn_schema_is_strict_root_object() -> None:
     schema = json.loads(
         (Path(__file__).parents[1] / "schemas" / "codex_turn.schema.json").read_text()

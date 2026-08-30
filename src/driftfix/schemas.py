@@ -50,3 +50,19 @@ class MigrationReport(DriftFixModel):
     target_version: str | None = Field(default=None, pattern=VERSION_PATTERN)
     breaking_changes: list[BreakingChange] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
+
+
+class PullRequestReport(DriftFixModel):
+    repository: str = Field(min_length=3)
+    number: int = Field(gt=0)
+    title: str = Field(min_length=1)
+    url: HttpUrl
+    state: Literal["open", "merged"]
+    draft: bool = False
+    author: str = Field(min_length=1)
+    head_branch: str = Field(min_length=1)
+    base_branch: str = Field(min_length=1)
+    body: str = ""
+    created_at: datetime
+    updated_at: datetime
+    merged_at: datetime | None = None
