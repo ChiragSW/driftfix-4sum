@@ -34,51 +34,21 @@ export const CodeScanner: React.FC = () => {
     }
   };
 
-  const v14LinesCustomer = [
-    { no: 42, text: 'def get_customer_email(customer_id):', broken: false },
-    { no: 43, text: '    customer = stripe.Customer.retrieve(customer_id)', broken: false },
-    { no: 44, text: '    return customer.get("email")', broken: true },
-    { no: 45, text: '', broken: false },
-    { no: 46, text: 'def update_customer_metadata(customer_id, metadata):', broken: false },
-    { no: 47, text: '    customer = stripe.Customer.retrieve(customer_id)', broken: false },
-    { no: 48, text: '    customer.metadata = metadata', broken: true },
-    { no: 49, text: '    customer.save()', broken: true },
-    { no: 50, text: '    return customer', broken: false },
-  ];
-
-  const v15LinesCustomer = [
-    { no: 42, text: 'def get_customer_email(customer_id):', fixed: false },
-    { no: 43, text: '    customer = stripe.Customer.retrieve(customer_id)', fixed: false },
-    { no: 44, text: '    return customer.to_dict().get("email")', fixed: true },
-    { no: 45, text: '', fixed: false },
-    { no: 46, text: 'def update_customer_metadata(customer_id, metadata):', fixed: false },
-    { no: 47, text: '    customer = stripe.Customer.retrieve(customer_id)', fixed: false },
-    { no: 48, text: '    customer = stripe.Customer.modify(', fixed: true },
-    { no: 49, text: '        customer_id,', fixed: true },
-    { no: 50, text: '        metadata=metadata', fixed: true },
-    { no: 51, text: '    )', fixed: true },
-    { no: 52, text: '    return customer', fixed: false },
-  ];
-
-  const originalLines = v14LinesCustomer;
-  const patchedLines = v15LinesCustomer;
-  const breakingCount = 3;
-
-  const rawDiff = `--- a/demo_target/customer_service.py
-+++ b/demo_target/customer_service.py
-@@ -44,7 +44,8 @@ def get_customer_email(customer_id):
--    return customer.get("email")
-+    return customer.to_dict().get("email")
-
- def update_customer_metadata(customer_id, metadata):
-     customer = stripe.Customer.retrieve(customer_id)
--    customer.metadata = metadata
--    customer.save()
-+    customer = stripe.Customer.modify(
-+        customer_id,
-+        metadata=metadata
-+    )
-     return customer`;
+  const originalLines = currentPresetData.v14Code.trimEnd().split('\n').map((text, index) => ({
+    no: index + 1,
+    text,
+    broken: currentPresetData.breakingLines.includes(index + 1),
+  }));
+  const patchedLines = currentPresetData.v15FixedCode.trimEnd().split('\n').map((text, index) => ({
+    no: index + 1,
+    text,
+    fixed: currentPresetData.fixedLines.includes(index + 1),
+  }));
+  const rawDiff = currentPresetData.rawDiff;
+  const diffLines = rawDiff.split('\n');
+  const additions = diffLines.filter((line) => line.startsWith('+') && !line.startsWith('+++')).length;
+  const deletions = diffLines.filter((line) => line.startsWith('-') && !line.startsWith('---')).length;
+  const breakingCount = currentPresetData.breakingLines.length;
 
   return (
     <div className="w-full flex flex-col gap-6 animate-fadeIn">
@@ -247,9 +217,9 @@ export const CodeScanner: React.FC = () => {
                 Unified Diff View
               </div>
               <div className="flex items-center gap-2 font-mono text-[11px] bg-[#1c2026] px-3 py-0.5 rounded-full border border-[#30363d]">
-                <span className="text-[#7bdb80] font-bold">+6 additions</span>
+                <span className="text-[#7bdb80] font-bold">+{additions} additions</span>
                 <span className="text-[#4a4453]">|</span>
-                <span className="text-[#da3633] font-bold">-6 deletions</span>
+                <span className="text-[#da3633] font-bold">-{deletions} deletions</span>
               </div>
             </div>
 

@@ -35,7 +35,17 @@ export const SAMPLE_MIGRATION_REPORT: MigrationReport = {
   warnings: []
 };
 
-export const DEMO_PRESETS: Record<string, { filename: string; v14Code: string; v15FixedCode: string; description: string }> = {
+interface DemoPreset {
+  filename: string;
+  description: string;
+  v14Code: string;
+  v15FixedCode: string;
+  breakingLines: number[];
+  fixedLines: number[];
+  rawDiff: string;
+}
+
+export const DEMO_PRESETS: Record<string, DemoPreset> = {
   "customer_service.py": {
     filename: "demo_target/customer_service.py",
     description: "Customer service layer utilizing legacy .get(), .keys(), .items() and dict(obj) on Stripe Customer objects.",
@@ -78,7 +88,26 @@ def customer_metadata(customer: stripe.Customer) -> dict[str, str]:
 
 def customer_snapshot(customer: stripe.Customer) -> dict[str, object]:
     return customer.to_dict()
-`
+`,
+    breakingLines: [7, 11, 15, 19],
+    fixedLines: [1, 7, 11, 15, 19],
+    rawDiff: `--- a/demo_target/customer_service.py
++++ b/demo_target/customer_service.py
+@@ -1 +1 @@
+-"""Intentionally outdated Stripe v14 code for the migration demo."""
++"""Migrated Stripe v15 code using .to_dict() for dict compatibility."""
+@@ -7 +7 @@
+-    return customer.get("email")
++    return customer.to_dict().get("email")
+@@ -11 +11 @@
+-    return sorted(customer.keys())
++    return sorted(customer.to_dict().keys())
+@@ -15 +15 @@
+-    return dict(customer.get("metadata", {}).items())
++    return dict(customer.to_dict().get("metadata", {}).items())
+@@ -19 +19 @@
+-    return dict(customer)
++    return customer.to_dict()`
   },
   "invoice_service.py": {
     filename: "demo_target/invoice_service.py",
@@ -115,6 +144,25 @@ def invoice_summary(invoice: stripe.Invoice) -> dict[str, object]:
 
 def invoice_field_pairs(invoice: stripe.Invoice) -> dict[str, object]:
     return dict(invoice.to_dict().items())
-`
+`,
+    breakingLines: [8, 9, 10, 15],
+    fixedLines: [1, 7, 9, 10, 11, 16],
+    rawDiff: `--- a/demo_target/invoice_service.py
++++ b/demo_target/invoice_service.py
+@@ -1 +1 @@
+-"""Intentionally outdated Stripe v14 code for the migration demo."""
++"""Migrated Stripe v15 code using .to_dict() for dict compatibility."""
+@@ -7,0 +7 @@
++    data = invoice.to_dict()
+@@ -8,3 +9,3 @@
+-        "id": invoice.get("id"),
+-        "status": invoice.get("status"),
+-        "amount_due": invoice.get("amount_due", 0),
++        "id": data.get("id"),
++        "status": data.get("status"),
++        "amount_due": data.get("amount_due", 0),
+@@ -15 +16 @@
+-    return dict(invoice.items())
++    return dict(invoice.to_dict().items())`
   }
 };
