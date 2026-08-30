@@ -723,3 +723,17 @@ async def _sse_events(completion: dict[str, Any]):
         yield event({"content": message["content"]})
     yield event({}, choice["finish_reason"])
     yield "data: [DONE]\n\n"
+
+
+def main() -> None:
+    import uvicorn
+
+    uvicorn.run(
+        app,
+        host=os.getenv("CODEX_PROVIDER_HOST", "127.0.0.1"),
+        port=int(os.getenv("CODEX_PROVIDER_PORT", "8765")),
+    )
+
+
+if __name__ == "__main__":
+    main()

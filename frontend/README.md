@@ -7,12 +7,19 @@ A reactive, dark-themed control center and visualizer for the **DriftFix** Strip
 ## ⚡ Quick Start
 
 ```bash
+# From the repository root, once:
+python -m pip install -e ".[dev]"
+
+# Terminal 1:
 cd frontend
+npm run provider
+
+# Terminal 2:
 npm install
 npm run dev
 ```
 
-The frontend will run locally on `http://localhost:3000`.
+The frontend will run locally on `http://localhost:3000`. Its API provider must remain available on `http://127.0.0.1:8765`; `python -m driftfix.server` only starts the separate MCP service on port `8000`.
 
 ---
 

@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "provider": "python -m uvicorn driftfix.provider:app --app-dir ../src --host 127.0.0.1 --port 8765",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"

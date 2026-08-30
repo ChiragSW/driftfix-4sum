@@ -179,7 +179,7 @@ export const Overview: React.FC<OverviewProps> = ({ setActiveTab }) => {
           </div>
         ) : reportsError ? (
           <div role="alert" className="bg-[#93000a]/15 border border-[#da3633]/40 rounded p-5 text-sm text-[#ffb4ac]">
-            {reportsError}. Start the provider backend and check its GitHub repository configuration.
+            {reportsError}. For local development, run <code className="font-mono">npm run provider</code> in a second terminal. The MCP server on port 8000 is a separate process.
           </div>
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
