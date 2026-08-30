@@ -1,0 +1,322 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>DriftFix - Sourced Stripe Python Migration Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#ccc3d6",
+                      "on-primary-fixed-variant": "#591db3",
+                      "inverse-primary": "#713dcc",
+                      "surface-dim": "#10141a",
+                      "primary-container": "#8957e5",
+                      "secondary-fixed-dim": "#7bdb80",
+                      "background": "#10141a",
+                      "on-secondary-fixed": "#002106",
+                      "tertiary-fixed": "#ffdad6",
+                      "on-secondary": "#00390e",
+                      "primary": "#d3bbff",
+                      "outline": "#958d9f",
+                      "error-container": "#93000a",
+                      "surface-bright": "#353940",
+                      "on-surface": "#dfe2eb",
+                      "tertiary-fixed-dim": "#ffb4ac",
+                      "outline-variant": "#4a4453",
+                      "secondary-fixed": "#97f999",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-high": "#262a31",
+                      "inverse-surface": "#dfe2eb",
+                      "tertiary": "#ffb4ac",
+                      "inverse-on-surface": "#2d3137",
+                      "on-primary": "#3f008d",
+                      "on-tertiary-fixed-variant": "#93000e",
+                      "surface": "#10141a",
+                      "primary-fixed": "#ebddff",
+                      "on-error": "#690005",
+                      "on-tertiary-container": "#fffdff",
+                      "on-background": "#dfe2eb",
+                      "error": "#ffb4ab",
+                      "surface-container": "#1c2026",
+                      "on-primary-fixed": "#250059",
+                      "on-primary-container": "#fffdff",
+                      "tertiary-container": "#da3633",
+                      "surface-variant": "#31353c",
+                      "secondary": "#7bdb80",
+                      "surface-container-lowest": "#0a0e14",
+                      "on-secondary-container": "#91f294",
+                      "primary-fixed-dim": "#d3bbff",
+                      "secondary-container": "#007124",
+                      "on-tertiary-fixed": "#410003",
+                      "surface-tint": "#d3bbff",
+                      "surface-container-highest": "#31353c",
+                      "on-tertiary": "#690007",
+                      "surface-container-low": "#181c22",
+                      "on-secondary-fixed-variant": "#005319"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "gutter": "16px",
+                      "container-max": "1280px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "body-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "display": [
+                              "Space Grotesk"
+                      ],
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "body-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "code": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "code": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #0d1117;
+            color: #dfe2eb;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant docked full-width top-0 z-50">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-md">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF2mZVLLWgAnivO3Eua0qfflkoBCc27R6Af4etWI8JFm0vo1HkpS8plgLVKZ4yf6b4wQJD9u3-PYRT--aFKVmOt2XcjeontsjeldRHpWrRLrtu3YifXqp6Wd6s4-AZYj4gn31UvGYQR1vZo2F2hUJdQJCmXBVfwM0XuWQDy1SAVWPu0VxQLbCxblxKDBdlnPfd5Sm8RuQ5BR9xjNfYb9pTLHCByyL1cF2h8BRFObo8lTjwmTfS336v3g" alt="DriftFix Official Logo" class="h-8 w-auto object-contain">
+<nav class="hidden md:flex gap-md h-full items-end">
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-2 opacity-80 scale-95" href="#">Overview &amp; Docs</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150" href="#">Migration Analyzer</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150" href="#">Impact Scout &amp; Fixer</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150" href="#">Daytona Sandbox</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150" href="#">Codex Provider</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors pb-2 hover:bg-surface-variant/50 transition-all duration-150" href="#">TrueForge Workflow</a>
+</nav>
+</div>
+<div class="flex items-center gap-sm font-label-md text-label-md text-on-surface-variant">
+<span class="">v0.1.0</span>
+<span class="material-symbols-outlined text-[18px] cursor-pointer hover:text-primary transition-colors" data-icon="check_circle">check_circle</span>
+<span class="material-symbols-outlined text-[18px] cursor-pointer hover:text-primary transition-colors" data-icon="database">database</span>
+<span class="material-symbols-outlined text-[18px] cursor-pointer hover:text-primary transition-colors" data-icon="link">link</span>
+</div>
+</div>
+</header>
+<div class="flex flex-1 max-w-container-max mx-auto w-full">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col gap-xs p-sm bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant fixed left-0 top-16 h-full w-[260px] z-40">
+<div class="mb-lg px-sm py-xs">
+<div class="flex items-center gap-sm mb-xs">
+<img class="w-6 h-6 rounded-sm border border-outline-variant object-cover" data-alt="A small, minimalist abstract logo representing a high-tech developer organization, utilizing sharp geometric shapes in deep black and vibrant purple, set against a dark gray background. The style is brutalist and sleek." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdMVH-tvtIBKKz_LAcEXBfNOMP1uHGJxAJo_ywM0CpPWGzwMLNOhm7lkc6MVB_o8UfdqX_Yg52m1BEP9ki3fwWlXxlh3EB_HrLa2A4zP0do26lqvAzKGHnChbuGPo2yIQLsD6j8nQ7DsIPDXySgssBUsxmk0xgBfe4vNoF8V3yvD09ugGu78ItfET86PjkcHpcfuxX6bFC12BCS7adWlx9HSZa2Jw0pmFOBqx_Mp4yyUSCdiun3r4TzA">
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate">driftfix-4sum</h2>
+</div>
+<p class="font-code text-body-sm text-on-surface-variant">Sourced Stripe Python Migration Engine</p>
+</div>
+<nav class="flex flex-col gap-base">
+<a class="flex items-center gap-sm font-code text-body-sm bg-primary-container text-on-primary-container font-bold border-l-2 border-primary px-md py-sm scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[16px]" data-icon="folder" style="font-variation-settings: 'FILL' 1;">folder</span>
+                    driftfix-4sum
+                </a>
+<a class="flex items-center gap-sm font-code text-body-sm text-on-surface-variant hover:bg-surface-variant px-md py-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]" data-icon="fork_right">fork_right</span>
+                    driftfix/stripe-v15.6.0
+                </a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-[260px] p-md md:p-lg w-full">
+<!-- Hero -->
+<section class="mb-xl border-b border-outline-variant pb-lg">
+<div class="inline-flex items-center gap-xs px-sm py-xs bg-primary/15 border border-primary rounded-none mb-md">
+<span class="material-symbols-outlined text-primary text-[14px]">memory</span>
+<span class="font-body-sm text-body-sm text-primary font-bold tracking-wide">Smart Dependency Migration Engine</span>
+</div>
+<h1 class="font-display text-display text-on-surface mb-md">Turn Stripe SDK Breaking Changes into Sourced, Sandbox-Tested Pull Requests.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mb-lg">Codex supplies local model reasoning through a read-only adapter while TrueForge orchestrates read-only MCP tools, parallel subagents, Daytona sandbox validation, and a human merge approval gate.</p>
+<div class="flex flex-wrap gap-md">
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-md py-sm border border-primary-container hover:bg-inverse-primary transition-colors flex items-center gap-xs rounded-none">
+<span class="material-symbols-outlined text-[16px]">rocket_launch</span>
+                        Launch Migration Analyzer
+                    </button>
+<button class="bg-transparent text-on-surface font-label-md text-label-md px-md py-sm border border-outline-variant hover:border-outline transition-colors flex items-center gap-xs rounded-none">
+<span class="material-symbols-outlined text-[16px]">troubleshoot</span>
+                        Test Impact Scout &amp; Fixer
+                    </button>
+<button class="bg-transparent text-on-surface font-label-md text-label-md px-md py-sm border border-outline-variant hover:border-outline transition-colors flex items-center gap-xs rounded-none">
+<span class="material-symbols-outlined text-[16px]">route</span>
+                        View TrueForge Trace
+                    </button>
+</div>
+</section>
+<!-- Summary Area -->
+<section class="mb-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
+<div class="bg-surface p-sm border border-outline-variant rounded-none flex flex-col gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Repository</span>
+<span class="font-code text-body-md text-on-surface truncate">driftfix-4sum</span>
+</div>
+<div class="bg-surface p-sm border border-outline-variant rounded-none flex flex-col gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Branch</span>
+<span class="font-code text-body-md text-on-surface truncate flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">call_split</span>driftfix/stripe-v15.6.0</span>
+</div>
+<div class="bg-surface p-sm border border-outline-variant rounded-none flex flex-col gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Target</span>
+<span class="font-code text-body-md text-on-surface truncate">stripe-python</span>
+</div>
+<div class="bg-surface p-sm border border-outline-variant rounded-none flex flex-col gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Migration</span>
+<span class="font-code text-body-md text-primary truncate">v14.3.0 → v15.6.0</span>
+</div>
+</section>
+<!-- KPI Cards -->
+<section class="mb-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Test Sandbox Results</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-sm">
+<div class="bg-surface border-l-4 border-l-secondary border border-outline-variant p-md rounded-none">
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Baseline</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface">Tests Passed: 7/7</p>
+<p class="font-code text-body-sm text-on-surface-variant mt-xs opacity-75">(All green on 14.3.0)</p>
+</div>
+<div class="bg-surface border-l-4 border-l-error border border-outline-variant p-md rounded-none">
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-error text-[16px]">cancel</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Impact</span>
+</div>
+<p class="font-body-md text-body-md text-error">Tests Failed: 7/7</p>
+<p class="font-code text-body-sm text-on-surface-variant mt-xs opacity-75">(Raw v15 bump)</p>
+</div>
+<div class="bg-surface border-l-4 border-l-secondary border border-outline-variant p-md rounded-none relative overflow-hidden">
+<div class="absolute inset-0 bg-secondary/5"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-secondary text-[16px]">build_circle</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Resolution</span>
+</div>
+<p class="font-body-md text-body-md text-secondary font-bold">Tests Passed: 7/7</p>
+<p class="font-code text-body-sm text-on-surface-variant mt-xs">(Patched v15.6.0)</p>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-md rounded-none relative">
+<div class="flex items-center justify-between mb-xs">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[16px]">merge</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Outcome</span>
+</div>
+<span class="bg-primary/20 text-primary font-code text-[10px] px-1 py-0.5 border border-primary/30">READY</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface font-bold">Draft PR: #1</p>
+<p class="font-code text-body-sm text-on-surface-variant mt-xs">(Merged after approval)</p>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface border-t border-outline-variant docked full-width bottom-0 z-50">
+<div class="flex justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto">
+<span class="font-code text-body-sm font-bold text-on-surface-variant">DriftFix • Team 4Sum • Sourced Stripe Python Migration Engine</span>
+<div class="flex gap-md">
+<a class="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">MIT Licensed</a>
+<a class="font-code text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">TrueForge 0.1.4 Verified Harness</a>
+</div>
+</div>
+</footer>
+
+
+</body></html>

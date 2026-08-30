@@ -1,0 +1,339 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Daytona Sandbox Pytest Verification Suite - DriftFix</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#ccc3d6",
+                        "on-primary-fixed-variant": "#591db3",
+                        "inverse-primary": "#713dcc",
+                        "surface-dim": "#10141a",
+                        "primary-container": "#8957e5",
+                        "secondary-fixed-dim": "#7bdb80",
+                        "background": "#10141a",
+                        "on-secondary-fixed": "#002106",
+                        "tertiary-fixed": "#ffdad6",
+                        "on-secondary": "#00390e",
+                        "primary": "#d3bbff",
+                        "outline": "#958d9f",
+                        "error-container": "#93000a",
+                        "surface-bright": "#353940",
+                        "on-surface": "#dfe2eb",
+                        "tertiary-fixed-dim": "#ffb4ac",
+                        "outline-variant": "#4a4453",
+                        "secondary-fixed": "#97f999",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#262a31",
+                        "inverse-surface": "#dfe2eb",
+                        "tertiary": "#ffb4ac",
+                        "inverse-on-surface": "#2d3137",
+                        "on-primary": "#3f008d",
+                        "on-tertiary-fixed-variant": "#93000e",
+                        "surface": "#10141a",
+                        "primary-fixed": "#ebddff",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#fffdff",
+                        "on-background": "#dfe2eb",
+                        "error": "#ffb4ab",
+                        "surface-container": "#1c2026",
+                        "on-primary-fixed": "#250059",
+                        "on-primary-container": "#fffdff",
+                        "tertiary-container": "#da3633",
+                        "surface-variant": "#31353c",
+                        "secondary": "#7bdb80",
+                        "surface-container-lowest": "#0a0e14",
+                        "on-secondary-container": "#91f294",
+                        "primary-fixed-dim": "#d3bbff",
+                        "secondary-container": "#007124",
+                        "on-tertiary-fixed": "#410003",
+                        "surface-tint": "#d3bbff",
+                        "surface-container-highest": "#31353c",
+                        "on-tertiary": "#690007",
+                        "surface-container-low": "#181c22",
+                        "on-secondary-fixed-variant": "#005319"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "gutter": "16px",
+                        "container-max": "1280px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Space Grotesk", "sans-serif"],
+                        "body-lg": ["JetBrains Mono", "monospace"],
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "label-md": ["JetBrains Mono", "monospace"],
+                        "headline-md": ["Space Grotesk", "sans-serif"],
+                        "body-sm": ["JetBrains Mono", "monospace"],
+                        "code": ["JetBrains Mono", "monospace"],
+                        "body-md": ["JetBrains Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "code": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface font-headline-md text-headline-md font-body-md text-body-md font-label-md text-label-md docked full-width top-0 border-b border-outline-variant flat no shadows flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto shrink-0 z-50">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface tracking-tighter">DRIFTFIX</span>
+</div>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2" href="#">Overview &amp; Docs</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2" href="#">Migration Analyzer</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2" href="#">Impact Scout &amp; Fixer</a>
+<a class="text-primary border-b-2 border-primary pb-2 opacity-80 scale-95" href="#">Daytona Sandbox</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2" href="#">Codex Provider</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors pb-2" href="#">TrueForge Workflow</a>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-on-surface-variant font-label-md text-label-md bg-surface-variant/50 px-2 py-1 rounded">v0.1.0</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface cursor-pointer text-[20px]" data-icon="check_circle">check_circle</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface cursor-pointer text-[20px]" data-icon="database">database</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface cursor-pointer text-[20px]" data-icon="link">link</span>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant" title="DRIFTFIX Logo"><img class="w-full h-full object-cover" alt="DriftFix Official Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF2mZVLLWgAnivO3Eua0qfflkoBCc27R6Af4etWI8JFm0vo1HkpS8plgLVKZ4yf6b4wQJD9u3-PYRT--aFKVmOt2XcjeontsjeldRHpWrRLrtu3YifXqp6Wd6s4-AZYj4gn31UvGYQR1vZo2F2hUJdQJCmXBVfwM0XuWQDy1SAVWPu0VxQLbCxblxKDBdlnPfd5Sm8RuQ5BR9xjNfYb9pTLHCByyL1cF2h8BRFObo8lTjwmTfS336v3g"></div>
+</div>
+</nav>
+<div class="flex flex-1 overflow-hidden relative">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low dark:bg-surface-container-low font-code text-body-sm fixed left-0 top-16 h-full w-[260px] border-r border-outline-variant flat no shadows hidden lg:flex flex-col gap-xs p-sm z-40">
+<div class="p-sm mb-4 border-b border-outline-variant pb-4">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded bg-surface-container border border-outline-variant overflow-hidden flex-shrink-0" title="DriftFix Org">
+<img class="w-full h-full object-cover" data-alt="A stylized technical avatar for a developer organization, featuring abstract wireframe nodes connecting in a grid pattern. Dark, utilitarian aesthetic with sharp contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3Cm5yF9wsOC-SwgeE_f4ulnWN3IA7OJjlbNgHbWueeRS1ZNhCfY7ZV55V8t185ogeTiqyuV3k9qXAFQ9khdMzsbpiB0LgUT2RyYm__mM_dH9avrt0X3fwsCfBrlMh7FN8FPsaM-05fIrIqBQ-EW8BvGeZuFQoyyDq0WWJjQTyQfr8DFePR8mnF3VPBL0faMVPnMd-GWYC8gzOH8Gvwpe4PbR7tEPLbx-ggD5gEnSF3C-XR4hKMq-gvg">
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-bold leading-none">driftfix-4sum</div>
+<div class="text-on-surface-variant mt-1 leading-tight" style="font-size: 10px;">Sourced Stripe Python Migration Engine</div>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="text-on-surface-variant hover:bg-surface-variant px-md py-sm rounded-DEFAULT flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="folder">folder</span>
+                    driftfix-4sum
+                </a>
+<a class="bg-primary-container text-on-primary-container font-bold border-l-2 border-primary rounded-r-DEFAULT px-md py-sm flex items-center gap-3 scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="fork_right">fork_right</span>
+                    driftfix/stripe-v15.6.0
+                </a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-[260px] p-md lg:p-xl overflow-y-auto w-full max-w-container-max mx-auto bg-background">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-lg border-b border-outline-variant pb-lg">
+<div>
+<h1 class="font-display text-display text-on-surface mb-2">Daytona Sandbox Pytest Verification Suite</h1>
+<div class="flex flex-wrap gap-3 mt-4">
+<div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 border border-outline-variant rounded-DEFAULT font-code text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">terminal</span>
+                            Runtime: Daytona Isolated Linux Container
+                        </div>
+<div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 border border-outline-variant rounded-DEFAULT font-code text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">lan</span>
+                            Network: Mock Fixtures
+                        </div>
+<div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 border border-outline-variant rounded-DEFAULT font-code text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">rule_folder</span>
+                            Test Coverage: 7 Pytest Cases
+                        </div>
+</div>
+</div>
+<div class="flex gap-2 shrink-0">
+<button class="bg-surface text-on-surface font-label-md text-label-md px-4 py-2 border border-outline-variant rounded-DEFAULT hover:bg-surface-variant transition-colors flex items-center gap-2 uppercase">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span> Reset
+                    </button>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-4 py-2 border border-primary-container rounded-DEFAULT hover:opacity-90 transition-opacity flex items-center gap-2 uppercase shadow-sm">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span> Run Sandbox Verification Cycle
+                    </button>
+</div>
+</div>
+<!-- CI Pipeline Steps -->
+<div class="flex flex-col gap-sm">
+<!-- PHASE 1: Baseline -->
+<div class="bg-surface-container-low border border-outline-variant rounded-DEFAULT overflow-hidden">
+<div class="flex items-center justify-between p-md border-b border-outline-variant bg-surface-container cursor-pointer hover:bg-surface-variant/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 border border-secondary flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg text-on-surface m-0">PHASE 1: Baseline (v14.3.0)</h3>
+<div class="font-code text-body-sm text-on-surface-variant mt-1">Setup initial environment and run baseline tests</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-code text-body-sm text-secondary px-2 py-1 bg-secondary-container/10 border border-secondary/30 rounded">PASSED</span>
+<span class="font-code text-body-sm text-on-surface-variant">0.04s</span>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest font-code text-code text-on-surface-variant border-l-4 border-secondary overflow-x-auto">
+<pre class="m-0 leading-relaxed"><span class="text-outline">============================= test session starts ==============================</span>
+platform linux -- Python 3.11.4, pytest-7.4.0, pluggy-1.2.0
+rootdir: /sandbox/workspace
+collected 7 items
+
+tests/test_customer.py <span class="text-secondary">.......</span>                                           <span class="text-secondary">[100%]</span>
+
+<span class="text-secondary">============================== </span><span class="text-secondary font-bold">7 passed in 0.04s</span><span class="text-secondary"> ===============================</span>
+</pre>
+</div>
+</div>
+<!-- PHASE 2: Dependency-only -->
+<div class="bg-surface-container-low border border-outline-variant rounded-DEFAULT overflow-hidden">
+<div class="flex items-center justify-between p-md border-b border-outline-variant bg-surface-container cursor-pointer hover:bg-surface-variant/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-error-container/20 border border-error flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg text-on-surface m-0">PHASE 2: Dependency-only (v15.6.0)</h3>
+<div class="font-code text-body-sm text-on-surface-variant mt-1">Upgrade Stripe SDK and identify breaking changes</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-code text-body-sm text-error px-2 py-1 bg-error-container/10 border border-error/30 rounded">EXPECTED FAILURE</span>
+<span class="font-code text-body-sm text-on-surface-variant">0.08s</span>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest font-code text-code text-on-surface-variant border-l-4 border-error overflow-x-auto">
+<pre class="m-0 leading-relaxed"><span class="text-outline">============================= test session starts ==============================</span>
+platform linux -- Python 3.11.4, pytest-7.4.0, pluggy-1.2.0
+rootdir: /sandbox/workspace
+collected 7 items
+
+tests/test_customer.py <span class="text-error">FFFFFFF</span>                                           <span class="text-error">[100%]</span>
+
+=================================== FAILURES ===================================
+<span class="text-error font-bold">_________________________ test_get_customer_details __________________________</span>
+
+    def test_get_customer_details():
+        customer_service = CustomerService()
+&gt;       result = customer_service.get_customer("cus_123")
+
+tests/test_customer.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/customer_service.py:45: in get_customer
+    return stripe.Customer.get(customer_id)
+<span class="text-error font-bold">E   AttributeError: 'Customer' object has no attribute 'get'</span>
+
+<span class="text-error">=========================== </span><span class="text-error font-bold">7 failed in 0.08s</span><span class="text-error"> ==============================</span>
+</pre>
+</div>
+</div>
+<!-- PHASE 3: Apply DriftFix Patch -->
+<div class="bg-surface-container-low border border-outline-variant rounded-DEFAULT overflow-hidden">
+<div class="flex items-center justify-between p-md border-b border-outline-variant bg-surface-container cursor-pointer hover:bg-surface-variant/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 border border-primary flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">build</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg text-on-surface m-0">PHASE 3: Apply DriftFix Patch</h3>
+<div class="font-code text-body-sm text-on-surface-variant mt-1">Inject AST modifications to resolve drift</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-code text-body-sm text-primary px-2 py-1 bg-primary-container/10 border border-primary/30 rounded">APPLIED</span>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest font-code text-code text-on-surface-variant border-l-4 border-primary overflow-x-auto flex flex-col gap-4">
+<div class="text-on-surface">Applying driftfix patch to <span class="text-primary font-bold">src/customer_service.py</span>...</div>
+<div class="border border-outline-variant rounded overflow-hidden">
+<div class="bg-surface-container px-3 py-1.5 border-b border-outline-variant text-label-md font-label-md text-on-surface-variant flex justify-between">
+<span class="">src/customer_service.py</span>
+<span class="">Python</span>
+</div>
+<div class="p-3 bg-[#0d1117]">
+<pre class="m-0 leading-relaxed text-[12px]"><span class="text-on-surface-variant/50">42 |</span>     def get_customer(self, customer_id: str):
+<span class="text-on-surface-variant/50">43 |</span>         """Retrieve customer details from Stripe."""
+<span class="bg-error-container/20 text-error"><span class="text-error/50">44 |</span>-        return stripe.Customer.get(customer_id)</span>
+<span class="bg-secondary-container/20 text-secondary"><span class="text-secondary/50">45 |</span>+        return stripe.Customer.retrieve(customer_id)</span>
+<span class="text-on-surface-variant/50">46 |</span>
+<span class="text-on-surface-variant/50">47 |</span>     def update_customer(self, customer_id: str, data: dict):
+</pre>
+</div>
+</div>
+</div>
+</div>
+<!-- PHASE 4: Final Verification -->
+<div class="bg-surface-container-low border border-outline-variant rounded-DEFAULT overflow-hidden shadow-[4px_4px_0_0_#000]">
+<div class="flex items-center justify-between p-md border-b border-outline-variant bg-surface-container cursor-pointer hover:bg-surface-variant/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 border border-secondary flex items-center justify-center text-secondary relative">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<div class="absolute inset-0 bg-secondary rounded-full animate-ping opacity-20"></div>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg text-on-surface m-0 font-bold text-secondary">PHASE 4: Final Verification (v15.6.0)</h3>
+<div class="font-code text-body-sm text-on-surface-variant mt-1">Run test suite against patched codebase</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-code text-body-sm text-secondary font-bold px-2 py-1 bg-secondary-container/20 border border-secondary rounded">VERIFIED GREEN</span>
+<span class="font-code text-body-sm text-on-surface-variant">0.05s</span>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest font-code text-code text-on-surface-variant border-l-4 border-secondary overflow-x-auto relative">
+<pre class="m-0 leading-relaxed"><span class="text-outline">============================= test session starts ==============================</span>
+platform linux -- Python 3.11.4, pytest-7.4.0, pluggy-1.2.0
+rootdir: /sandbox/workspace
+collected 7 items
+
+tests/test_customer.py <span class="text-secondary">.......</span>                                           <span class="text-secondary">[100%]</span>
+
+<span class="text-secondary">============================== </span><span class="text-secondary font-bold">7 passed in 0.05s</span><span class="text-secondary"> ===============================</span>
+</pre>
+<div class="absolute right-4 top-4 text-secondary/10 pointer-events-none">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface font-code text-body-sm font-code text-body-sm font-bold docked full-width bottom-0 border-t border-outline-variant flat no shadows flex justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto shrink-0 z-50">
+<div class="text-on-surface-variant dark:text-on-surface-variant">
+            DriftFix • Team 4Sum • Sourced Stripe Python Migration Engine
+        </div>
+<div class="flex gap-4">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">MIT Licensed</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[14px]">verified</span> TrueForge 0.1.4 Verified Harness
+            </a>
+</div>
+</footer>
+
+
+</body></html>
