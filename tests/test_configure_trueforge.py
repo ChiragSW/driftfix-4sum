@@ -39,6 +39,11 @@ def test_configure_creates_complete_secret_safe_agent() -> None:
     assert manifest["mcp_servers"][1]["require_approval_for_tools"] == [
         "merge_pull_request"
     ]
+    assert manifest["mcp_servers"][1]["preload_tools"] == [
+        "create_branch",
+        "push_files",
+        "create_pull_request",
+    ]
     assert manifest["config"]["dynamic_sub_agents"]["enabled"] is True
     assert manifest["config"]["iteration_limit"] == 30
 
